@@ -1,4 +1,4 @@
-package ru.example.springboot_hibernate_list.entity;
+package ru.example.springboot_hibernate_list.model;
 
 public enum TaskStatus {
     TODO("todo"),

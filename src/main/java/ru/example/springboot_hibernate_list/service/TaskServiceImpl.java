@@ -1,9 +1,10 @@
-package ru.example.springboot_hibernate_list.sevice;
+package ru.example.springboot_hibernate_list.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.stereotype.Service;
-import ru.example.springboot_hibernate_list.entity.TaskStatus;
+import ru.example.springboot_hibernate_list.exception.ResourceNotFoundException;
+import ru.example.springboot_hibernate_list.model.TaskStatus;
 import ru.example.springboot_hibernate_list.model.Task;
 import ru.example.springboot_hibernate_list.repository.TaskRepository;
 
@@ -22,24 +23,18 @@ public class TaskServiceImpl implements TaskService{
     }
 
     @Override
-    public List<Task> readAll() {
+    public List<Task> findAll() {
         return taskRepository.findAll();
     }
 
     @Override
-    public void create(Task task) {
-        taskRepository.save(task);
+    public Task save(Task task) {
+        return taskRepository.save(task);
     }
 
     @Override
-    public Task read(Long id) {
-        Optional<Task> taskData = taskRepository.findById(id);
-
-        if (taskData.isPresent()) {
-            return taskData.get();
-        }
-
-        return null;
+    public Task findById(Long id) {
+        return taskRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Task with id " + id + " not found"));
     }
 
     @Override
@@ -76,13 +71,12 @@ public class TaskServiceImpl implements TaskService{
     }
 
     @Override
-    public boolean delete(Long id) {
-        if (taskRepository.existsById(id)) {
-            taskRepository.deleteById(id);
-            return true;
+    public void deleteById(Long id) {
+        if (!taskRepository.existsById(id)) {
+            throw new ResourceNotFoundException("Task with id " + id + " not found");
         }
 
-        return false;
+        taskRepository.deleteById(id);
     }
 
     @Override

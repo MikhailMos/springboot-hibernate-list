@@ -1,12 +1,14 @@
 package ru.example.springboot_hibernate_list.controller;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.example.springboot_hibernate_list.model.Task;
-import ru.example.springboot_hibernate_list.sevice.TaskService;
+import ru.example.springboot_hibernate_list.service.TaskService;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("api/v1")
@@ -14,42 +16,32 @@ public class TaskController {
 
     private final TaskService taskService;
 
-    //@Autowired //??? не знаю нужно ли тут эту аннотацию?
+    @Autowired
     public TaskController(TaskService taskService) {
         this.taskService = taskService;
     }
 
     @GetMapping("/tasks")
-    public ResponseEntity<List<Task>> getAllTasks() {
+    public List<Task> getAllTasks() {
 
-        System.out.println("Show all tasks");
+        return taskService.findAll();
 
-        final List<Task> tasks = taskService.readAll();
-
-        return tasks != null && !tasks.isEmpty()
-                ? new ResponseEntity<>(tasks, HttpStatus.OK)
-                : new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
     @PostMapping("/tasks")
-    public ResponseEntity<Task> CreateTask(@RequestBody Task task) {
+    public Task createTask(@RequestBody Task task) {
 
-        taskService.create(task);
-        return new ResponseEntity<>(HttpStatus.CREATED);
+        return taskService.save(task);
+
     }
 
     @GetMapping("/tasks/{id}")
-    public ResponseEntity<Task> getTask(@PathVariable("id") Long id) {
+    public Task getTask(@PathVariable("id") Long id) {
 
-        final Task task = taskService.read(id);
-
-        return task == null
-                ? new ResponseEntity<>(HttpStatus.NOT_FOUND)
-                : new ResponseEntity<>(task, HttpStatus.OK);
-
+        return taskService.findById(id);
     }
 
-    @PutMapping("/update/{id}")
+    @PutMapping("/tasks/{id}")
     public ResponseEntity<?> updateTask(@PathVariable("id") Long id, @RequestBody Task task) {
 
         try {
@@ -64,7 +56,7 @@ public class TaskController {
         }
     }
 
-    @PutMapping("/tasks/{id}")
+    @PutMapping("/tasks/{id}/status")
     public ResponseEntity<?> updateStatus(@PathVariable("id") Long id, @RequestBody String request) {
 
         String statusStr;
@@ -88,13 +80,10 @@ public class TaskController {
     }
 
     @DeleteMapping("/tasks/{id}")
-    public ResponseEntity<HttpStatus> deleteTask(@PathVariable("id") Long id) {
+    public void deleteTask(@PathVariable("id") Long id) {
 
-        final boolean deleted = taskService.delete(id);
+        taskService.deleteById(id);
 
-        return deleted
-                ? new ResponseEntity<>(HttpStatus.OK)
-                : new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
 }

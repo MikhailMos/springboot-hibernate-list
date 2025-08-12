@@ -1,7 +1,6 @@
 package ru.example.springboot_hibernate_list.model;
 
 import jakarta.persistence.*;
-import ru.example.springboot_hibernate_list.entity.TaskStatus;
 
 @Entity
 @Table(name = "tasks")

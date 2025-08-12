@@ -26,5 +26,6 @@ __Методы *DELETE*:__
 ## Стек технологий
 - Spring Boot
 - Hibernate
+- Maven
 - Tomcat
 - PostgreSQL

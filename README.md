@@ -1,6 +1,6 @@
 # springboot-hibernate-list
 Разработа REST API для управления задачами.\
-Реализованы CRUD операции.
+Реализованы CRUD операции над задачами.
 
 Задача состоит из трех полей: id, description, status\
 Поле "status" может принимать следующие значения: "todo", "in-progress", "done".

@@ -1,30 +1,30 @@
 package ru.example.springboot_hibernate_list.exception;
 
 public class AppError {
-    private int statusCode;
-    private String message;
+    private int status;
+    private String error;
 
-    public int getStatusCode() {
-        return statusCode;
+    public int getStatus() {
+        return status;
     }
 
-    public void setStatusCode(int statusCode) {
-        this.statusCode = statusCode;
+    public void setStatus(int status) {
+        this.status = status;
     }
 
-    public String getMessage() {
-        return message;
+    public String getError() {
+        return error;
     }
 
-    public void setMessage(String message) {
-        this.message = message;
+    public void setError(String message) {
+        this.error = message;
     }
 
     public AppError() {
     }
 
-    public AppError(int statusCode, String message) {
-        this.statusCode = statusCode;
-        this.message = message;
+    public AppError(int status, String message) {
+        this.status = status;
+        this.error = message;
     }
 }

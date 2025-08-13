@@ -1,14 +1,11 @@
 package ru.example.springboot_hibernate_list.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.example.springboot_hibernate_list.model.Task;
 import ru.example.springboot_hibernate_list.service.TaskService;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("api/v1")
@@ -42,41 +39,17 @@ public class TaskController {
     }
 
     @PutMapping("/tasks/{id}")
-    public ResponseEntity<?> updateTask(@PathVariable("id") Long id, @RequestBody Task task) {
+    public Task updateTask(@PathVariable("id") Long id, @RequestBody Task changedTask) {
 
-        try {
-            final Task updatedTask = taskService.update(id, task);
+        return taskService.update(id, changedTask);
 
-            return updatedTask == null
-                    ? new ResponseEntity<>("Task not found by id", HttpStatus.NOT_FOUND)
-                    : new ResponseEntity<>(updatedTask, HttpStatus.OK);
-
-        } catch (IllegalArgumentException ex) {
-            return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
-        }
     }
 
     @PutMapping("/tasks/{id}/status")
-    public ResponseEntity<?> updateStatus(@PathVariable("id") Long id, @RequestBody String request) {
+    public Task updateStatus(@PathVariable("id") Long id, @RequestBody Task changedTask) {
 
-        String statusStr;
+        return taskService.update(id, changedTask.getStatus());
 
-        try {
-            statusStr = taskService.getStatusFromJson(request);
-            if (statusStr == null) {
-                return new ResponseEntity<>("Can't find node \"status\"", HttpStatus.BAD_REQUEST);
-            }
-        } catch (IllegalArgumentException ex) {
-            return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
-        } catch (Exception ex) {
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-
-        final Task updatedTask = taskService.update(id, statusStr);
-
-        return updatedTask == null
-                ? new ResponseEntity<>("Task not found by id", HttpStatus.NOT_FOUND)
-                : new ResponseEntity<>(updatedTask, HttpStatus.OK);
     }
 
     @DeleteMapping("/tasks/{id}")

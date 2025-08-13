@@ -1,6 +1,10 @@
 package ru.example.springboot_hibernate_list.model;
 
+import jakarta.annotation.Nonnull;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.Size;
 
 @Entity
 @Table(name = "tasks")
@@ -12,6 +16,11 @@ public class Task {
     private Long id;
 
     @Column(name = "description")
+    @NotBlank
+    @Size(
+            min = 5,
+            message = "The message length mast be more 5 characters"
+    )
     private String description;
 
     @Column(name = "status")

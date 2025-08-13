@@ -1,17 +1,70 @@
 package ru.example.springboot_hibernate_list.controller;
 
+import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import ru.example.springboot_hibernate_list.exception.AppError;
-import ru.example.springboot_hibernate_list.exception.ResourceNotFoundException;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
+import ru.example.springboot_hibernate_list.model.exception.ResourceNotFoundException;
+import ru.example.springboot_hibernate_list.model.exception.ValidationErrorResponse;
+import ru.example.springboot_hibernate_list.model.exception.Violation;
 
-@ControllerAdvice
+import java.util.List;
+import java.util.stream.Collectors;
+
+@RestControllerAdvice
 public class GlobalExceptionHandler {
-    @ExceptionHandler
-    public ResponseEntity<AppError> catchResourceNotFoundException(ResourceNotFoundException ex) {
-        return new ResponseEntity<>(new AppError(HttpStatus.NOT_FOUND.value(), ex.getMessage()), HttpStatus.NOT_FOUND);
+    @ExceptionHandler(ResourceNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+//    public ResponseEntity<Violation> catchResourceNotFoundException(ResourceNotFoundException ex) {
+//        return new ResponseEntity<>(new Violation("", ex.getMessage()), HttpStatus.NOT_FOUND);
+    public Violation catchResourceNotFoundException(ResourceNotFoundException ex) {
+        return new Violation("", ex.getMessage());
     }
 
+    //TODO: catch IllegalArgumentException.
+
+    /**
+     * ConstraintViolationException - выбрасывается при проверке валидности на уровне параметров метода.
+     */
+    @ExceptionHandler(ConstraintViolationException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ValidationErrorResponse catchConstraintViolationException(ConstraintViolationException ex) {
+        final List<Violation> violations = ex
+                                            .getConstraintViolations()
+                                            .stream()
+                                            .map(violation ->  new Violation(
+                                                                                        violation.getPropertyPath().toString(),
+                                                                                        violation.getMessage()
+                                                                                    )
+                                            )
+                                            .collect(Collectors.toList());
+
+        return new ValidationErrorResponse(violations);
+    }
+
+    /**
+     * MethodArgumentNotValidException - выбрасывается при проверке валидности на уровне проверки тела запроса.
+     */
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ValidationErrorResponse catchMethodArgumentNotValidException(MethodArgumentNotValidException ex) {
+        final List<Violation> violations = ex
+                                            .getFieldErrors()
+                                            .stream()
+                                            .map(error ->  new Violation(error.getField(), error.getDefaultMessage()))
+                                            .collect(Collectors.toList());
+
+        return new ValidationErrorResponse(violations);
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public Violation catchHttpMessageNotReadableException(HttpMessageNotReadableException ex) {
+        return new Violation("", ex.getMessage());
+    }
 }

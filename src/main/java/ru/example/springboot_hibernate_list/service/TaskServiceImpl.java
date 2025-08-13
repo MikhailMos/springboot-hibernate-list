@@ -1,9 +1,7 @@
 package ru.example.springboot_hibernate_list.service;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.stereotype.Service;
-import ru.example.springboot_hibernate_list.exception.ResourceNotFoundException;
+import ru.example.springboot_hibernate_list.model.exception.ResourceNotFoundException;
 import ru.example.springboot_hibernate_list.model.TaskStatus;
 import ru.example.springboot_hibernate_list.model.Task;
 import ru.example.springboot_hibernate_list.repository.TaskRepository;
@@ -14,11 +12,9 @@ import java.util.List;
 public class TaskServiceImpl implements TaskService{
 
     private final TaskRepository taskRepository;
-    private final ObjectMapper objectMapper;
 
     public TaskServiceImpl(TaskRepository taskRepository) {
         this.taskRepository = taskRepository;
-        this.objectMapper = new ObjectMapper();
     }
 
     @Override
@@ -64,7 +60,6 @@ public class TaskServiceImpl implements TaskService{
     @Override
     public Task update(Long id, TaskStatus newStatus) {
 
-        // TODO: возможно нужна будет проверка статуса на null?
         // TODO: добавить транзактивности
         // TODO: что-то было про Patch-запросы...
 

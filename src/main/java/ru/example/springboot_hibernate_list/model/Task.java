@@ -15,7 +15,8 @@ public class Task {
     private String description;
 
     @Column(name = "status")
-    private String status = TaskStatus.TODO.getView();
+    @Enumerated(EnumType.STRING)
+    private TaskStatus status = TaskStatus.TODO;
 
     public Task() {
     }
@@ -24,9 +25,9 @@ public class Task {
         this.description = description;
     }
 
-    public Task(String description, String status) {
+    public Task(String description, TaskStatus status) {
         this.description = description;
-        this.status = status == null ? TaskStatus.TODO.getView() : status;
+        this.status = status == null ? TaskStatus.TODO : status;
     }
 
     // Getters
@@ -38,7 +39,7 @@ public class Task {
         return description;
     }
 
-    public String getStatus() {
+    public TaskStatus getStatus() {
         return status;
     }
 
@@ -51,7 +52,7 @@ public class Task {
         this.description = description;
     }
 
-    public void setStatus(String status) {
+    public void setStatus(TaskStatus status) {
         this.status = status;
     }
 
@@ -60,7 +61,19 @@ public class Task {
         return "Task {" +
                 "id=" + id +
                 ", description='" + description + '\'' +
-                ", status=" + status +
+                ", status=" + status.name() +
                 '}';
     }
+
+    public Task copyWithoutId(Task t) {
+        this.description = t.getDescription();
+        this.status = t.getStatus();
+
+        if (status == null) {
+            this.status = TaskStatus.TODO;
+        }
+
+        return this;
+    }
+
 }

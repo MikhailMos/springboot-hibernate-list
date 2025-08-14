@@ -1,5 +1,6 @@
 package ru.example.springboot.hibernate.list.controller;
 
+import com.github.fge.jsonpatch.JsonPatch;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import ru.example.springboot.hibernate.list.model.Task;
@@ -49,6 +50,13 @@ public class TaskController {
     public Task updateStatus(@PathVariable("id") Long id, @RequestBody Task changedTask) {
 
         return taskService.update(id, changedTask.getStatus());
+
+    }
+
+    @PatchMapping(path = "/tasks/{id}/status") /* consumes = "application/json-patch+json")*/
+    public Task updateStatus(@PathVariable("id") Long id, @RequestBody JsonPatch patch) {
+
+        return taskService.update(id, patch);
 
     }
 

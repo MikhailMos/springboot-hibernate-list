@@ -53,7 +53,7 @@ public class TaskController {
 
     }
 
-    @PatchMapping(path = "/tasks/{id}/status") /* consumes = "application/json-patch+json")*/
+    @PatchMapping(path = "/tasks/{id}/status", consumes = "application/json-patch+json")
     public Task updateStatus(@PathVariable("id") Long id, @RequestBody JsonPatch patch) {
 
         return taskService.update(id, patch);

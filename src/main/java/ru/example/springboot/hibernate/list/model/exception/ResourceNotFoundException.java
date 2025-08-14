@@ -1,4 +1,4 @@
-package ru.example.springboot_hibernate_list.model.exception;
+package ru.example.springboot.hibernate.list.model.exception;
 
 public class ResourceNotFoundException extends RuntimeException {
     public ResourceNotFoundException(String message) {

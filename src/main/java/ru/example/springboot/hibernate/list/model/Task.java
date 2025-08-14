@@ -1,10 +1,10 @@
-package ru.example.springboot_hibernate_list.model;
+package ru.example.springboot.hibernate.list.model;
 
-import jakarta.annotation.Nonnull;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;
+
+import java.util.Objects;
 
 @Entity
 @Table(name = "tasks")
@@ -15,15 +15,12 @@ public class Task {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    @Column(name = "description")
-    @NotBlank
-    @Size(
-            min = 5,
-            message = "The message length mast be more 5 characters"
-    )
+    @Column(name = "description", nullable = false)
+    @NotBlank(message = "Description must not be blank")
+    @Size(min = 5, message = "The message length mast be more 5 characters")
     private String description;
 
-    @Column(name = "status")
+    @Column(name = "status", nullable = false)
     @Enumerated(EnumType.STRING)
     private TaskStatus status = TaskStatus.TODO;
 
@@ -69,16 +66,38 @@ public class Task {
     public String toString() {
         return "Task {" +
                 "id=" + id +
-                ", description='" + description + '\'' +
+                ", description='" + description +
                 ", status=" + status.name() +
-                '}';
+                "}";
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(description, status);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+
+        if (this == obj) { return true; }
+        if (!(obj instanceof Task)) { return false; }
+
+        Task otherTask = (Task) obj;
+
+        return Objects.equals(description, otherTask.description) &&
+                Objects.equals(status, otherTask.status);
     }
 
     public Task copyWithoutId(Task t) {
+
+        if (t == null) {
+            return this;
+        }
+
         this.description = t.getDescription();
         this.status = t.getStatus();
 
-        if (status == null) {
+        if (this.status == null) {
             this.status = TaskStatus.TODO;
         }
 

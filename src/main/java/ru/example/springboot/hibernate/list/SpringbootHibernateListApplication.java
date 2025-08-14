@@ -1,4 +1,4 @@
-package ru.example.springboot_hibernate_list;
+package ru.example.springboot.hibernate.list;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

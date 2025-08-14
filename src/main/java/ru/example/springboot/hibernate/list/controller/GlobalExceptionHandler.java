@@ -1,17 +1,15 @@
-package ru.example.springboot_hibernate_list.controller;
+package ru.example.springboot.hibernate.list.controller;
 
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
-import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import ru.example.springboot_hibernate_list.model.exception.ResourceNotFoundException;
-import ru.example.springboot_hibernate_list.model.exception.ValidationErrorResponse;
-import ru.example.springboot_hibernate_list.model.exception.Violation;
+import ru.example.springboot.hibernate.list.model.exception.ResourceNotFoundException;
+import ru.example.springboot.hibernate.list.model.exception.ValidationErrorResponse;
+import ru.example.springboot.hibernate.list.model.exception.Violation;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -20,8 +18,6 @@ import java.util.stream.Collectors;
 public class GlobalExceptionHandler {
     @ExceptionHandler(ResourceNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
-//    public ResponseEntity<Violation> catchResourceNotFoundException(ResourceNotFoundException ex) {
-//        return new ResponseEntity<>(new Violation("", ex.getMessage()), HttpStatus.NOT_FOUND);
     public Violation catchResourceNotFoundException(ResourceNotFoundException ex) {
         return new Violation("", ex.getMessage());
     }

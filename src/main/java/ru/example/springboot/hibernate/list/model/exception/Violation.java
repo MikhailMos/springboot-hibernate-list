@@ -1,6 +1,8 @@
-package ru.example.springboot_hibernate_list.model.exception;
+package ru.example.springboot.hibernate.list.model.exception;
 
-// содержит ошибки выявленные при проверке валидности
+/**
+ *  содержит ошибку выявленную при проверке валидности
+ */
 public class Violation {
 
     private final String fieldName;

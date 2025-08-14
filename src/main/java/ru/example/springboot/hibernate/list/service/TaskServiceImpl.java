@@ -1,10 +1,11 @@
-package ru.example.springboot_hibernate_list.service;
+package ru.example.springboot.hibernate.list.service;
 
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Service;
-import ru.example.springboot_hibernate_list.model.exception.ResourceNotFoundException;
-import ru.example.springboot_hibernate_list.model.TaskStatus;
-import ru.example.springboot_hibernate_list.model.Task;
-import ru.example.springboot_hibernate_list.repository.TaskRepository;
+import ru.example.springboot.hibernate.list.model.exception.ResourceNotFoundException;
+import ru.example.springboot.hibernate.list.model.TaskStatus;
+import ru.example.springboot.hibernate.list.model.Task;
+import ru.example.springboot.hibernate.list.repository.TaskRepository;
 
 import java.util.List;
 
@@ -18,45 +19,48 @@ public class TaskServiceImpl implements TaskService{
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<Task> findAll() {
         return taskRepository.findAll();
     }
 
     @Override
+    @Transactional(readOnly = false)
     public Task save(Task task) {
         return taskRepository.save(task);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Task findById(Long id) {
         return taskRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Task with id " + id + " not found"));
     }
 
     @Override
+    @Transactional
     public Task update(Long id, Task changedTask) throws ResourceNotFoundException {
 
-        Task foundTask = findById(id); // если метод не выбросил ошибку, значит задача есть
-        foundTask.copyWithoutId(changedTask);
+        // TODO: что-то было про Patch-запросы...
 
-        taskRepository.save(foundTask);
+        Task foundTask = findById(id).copyWithoutId(changedTask);
 
-        return foundTask;
+        return taskRepository.save(foundTask);
     }
 
     @Override
+    @Transactional
     public Task update(Long id, TaskStatus newStatus) throws ResourceNotFoundException {
 
-        // TODO: добавить транзактивности
         // TODO: что-то было про Patch-запросы...
 
         Task task = findById(id);
         task.setStatus(newStatus);
-        taskRepository.save(task);
 
-        return task;
+        return taskRepository.save(task);
     }
 
     @Override
+    @Transactional
     public void deleteById(Long id) {
         if (!taskRepository.existsById(id)) {
             throw new ResourceNotFoundException("Task with id " + id + " not found");

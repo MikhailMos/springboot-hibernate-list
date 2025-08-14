@@ -1,10 +1,9 @@
-package ru.example.springboot_hibernate_list.service;
+package ru.example.springboot.hibernate.list.service;
 
 import jakarta.validation.Valid;
 import org.springframework.validation.annotation.Validated;
-import ru.example.springboot_hibernate_list.model.exception.ResourceNotFoundException;
-import ru.example.springboot_hibernate_list.model.Task;
-import ru.example.springboot_hibernate_list.model.TaskStatus;
+import ru.example.springboot.hibernate.list.model.Task;
+import ru.example.springboot.hibernate.list.model.TaskStatus;
 
 import java.util.List;
 

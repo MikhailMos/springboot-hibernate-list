@@ -1,9 +1,9 @@
-package ru.example.springboot_hibernate_list.controller;
+package ru.example.springboot.hibernate.list.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import ru.example.springboot_hibernate_list.model.Task;
-import ru.example.springboot_hibernate_list.service.TaskService;
+import ru.example.springboot.hibernate.list.model.Task;
+import ru.example.springboot.hibernate.list.service.TaskService;
 
 import java.util.List;
 

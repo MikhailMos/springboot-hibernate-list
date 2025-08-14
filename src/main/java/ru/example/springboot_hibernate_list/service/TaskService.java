@@ -13,7 +13,7 @@ public interface TaskService {
 
     List<Task> findAll();
     Task save(@Valid Task task);
-    Task findById(Long id) throws ResourceNotFoundException;
+    Task findById(Long id);
     Task update(Long id, @Valid Task changedTask);
     Task update(Long id, TaskStatus newStatus);
     void deleteById(Long id);

@@ -28,26 +28,12 @@ public class TaskServiceImpl implements TaskService{
     }
 
     @Override
-    public Task findById(Long id) throws ResourceNotFoundException {
+    public Task findById(Long id) {
         return taskRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Task with id " + id + " not found"));
     }
 
     @Override
-    public Task update(Long id, Task changedTask) {
-//        if (taskRepository.existsById(id)) {
-//
-////            // Checking correct status, if not correct throw error
-////            TaskStatus.valueOf(task.getStatus().toUpperCase().replace('-', '_'));
-//
-//            changedTask.setId(id);
-//            if (changedTask.getStatus() == null) {
-//                changedTask.setStatus(TaskStatus.TODO);
-//            }
-//            taskRepository.save(changedTask);
-//            return changedTask;
-//        }
-//
-//        throw new ResourceNotFoundException("Task with id " + id + " not found");
+    public Task update(Long id, Task changedTask) throws ResourceNotFoundException {
 
         Task foundTask = findById(id); // если метод не выбросил ошибку, значит задача есть
         foundTask.copyWithoutId(changedTask);
@@ -58,7 +44,7 @@ public class TaskServiceImpl implements TaskService{
     }
 
     @Override
-    public Task update(Long id, TaskStatus newStatus) {
+    public Task update(Long id, TaskStatus newStatus) throws ResourceNotFoundException {
 
         // TODO: добавить транзактивности
         // TODO: что-то было про Patch-запросы...

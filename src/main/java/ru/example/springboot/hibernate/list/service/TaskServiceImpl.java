@@ -1,7 +1,13 @@
 package ru.example.springboot.hibernate.list.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.fge.jsonpatch.JsonPatch;
+import com.github.fge.jsonpatch.JsonPatchException;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import ru.example.springboot.hibernate.list.model.exception.ResourceNotFoundException;
 import ru.example.springboot.hibernate.list.model.TaskStatus;
 import ru.example.springboot.hibernate.list.model.Task;
@@ -14,8 +20,12 @@ public class TaskServiceImpl implements TaskService{
 
     private final TaskRepository taskRepository;
 
-    public TaskServiceImpl(TaskRepository taskRepository) {
+    private final ObjectMapper objectMapper;
+
+    public TaskServiceImpl(TaskRepository taskRepository,
+                           ObjectMapper objectMapper) {
         this.taskRepository = taskRepository;
+        this.objectMapper = objectMapper;
     }
 
     @Override
@@ -49,12 +59,24 @@ public class TaskServiceImpl implements TaskService{
     @Transactional
     public Task update(Long id, TaskStatus newStatus) throws ResourceNotFoundException {
 
-        // TODO: что-то было про Patch-запросы...
-
         Task task = findById(id);
         task.setStatus(newStatus);
 
         return taskRepository.save(task);
+    }
+
+    @Override
+    @Transactional
+    public Task update(Long id, JsonPatch patch) {
+        Task task = findById(id);
+
+        try {
+            Task taskPatched = applyPatchToTask(patch, task);
+            return taskRepository.save(taskPatched);
+        } catch (JsonPatchException | JsonProcessingException ex) {
+            throw new RuntimeException(ex);
+        }
+
     }
 
     @Override
@@ -65,6 +87,11 @@ public class TaskServiceImpl implements TaskService{
         }
 
         taskRepository.deleteById(id);
+    }
+
+    private Task applyPatchToTask(JsonPatch patch, Task targetTask)  throws JsonPatchException, JsonProcessingException {
+        JsonNode patched = patch.apply(objectMapper.convertValue(targetTask, JsonNode.class));
+        return objectMapper.treeToValue(patched, Task.class);
     }
 
 }

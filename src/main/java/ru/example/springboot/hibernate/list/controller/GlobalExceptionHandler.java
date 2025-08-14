@@ -1,5 +1,7 @@
 package ru.example.springboot.hibernate.list.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.github.fge.jsonpatch.JsonPatchException;
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -21,8 +23,6 @@ public class GlobalExceptionHandler {
     public Violation catchResourceNotFoundException(ResourceNotFoundException ex) {
         return new Violation("", ex.getMessage());
     }
-
-    //TODO: catch IllegalArgumentException.
 
     /**
      * ConstraintViolationException - выбрасывается при проверке валидности на уровне параметров метода.
@@ -61,6 +61,18 @@ public class GlobalExceptionHandler {
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public Violation catchHttpMessageNotReadableException(HttpMessageNotReadableException ex) {
+        return new Violation("", ex.getMessage());
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public Violation catchJsonPatchException(JsonPatchException ex) {
+        return new Violation("", ex.getMessage());
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public Violation catchJsonProcessingException(JsonProcessingException ex) {
         return new Violation("", ex.getMessage());
     }
 }

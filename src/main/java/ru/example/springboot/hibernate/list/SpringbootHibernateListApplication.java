@@ -1,10 +1,11 @@
-package ru.example.springboot_hibernate_list;
+package ru.example.springboot.hibernate.list;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import ru.example.springboot_hibernate_list.entity.TaskStatus;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 @SpringBootApplication
+@EnableTransactionManagement
 public class SpringbootHibernateListApplication {
 
 	public static void main(String[] args) {

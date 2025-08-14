@@ -40,9 +40,7 @@ public class TaskServiceImpl implements TaskService{
     @Transactional
     public Task update(Long id, Task changedTask) throws ResourceNotFoundException {
 
-        // TODO: что-то было про Patch-запросы...
-
-        Task foundTask = findById(id).copyWithoutId(changedTask);
+       Task foundTask = findById(id).copyWithoutId(changedTask);
 
         return taskRepository.save(foundTask);
     }

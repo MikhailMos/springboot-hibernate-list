@@ -7,7 +7,6 @@ import com.github.fge.jsonpatch.JsonPatch;
 import com.github.fge.jsonpatch.JsonPatchException;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.MethodArgumentNotValidException;
 import ru.example.springboot.hibernate.list.model.exception.ResourceNotFoundException;
 import ru.example.springboot.hibernate.list.model.TaskStatus;
 import ru.example.springboot.hibernate.list.model.Task;
@@ -15,13 +14,34 @@ import ru.example.springboot.hibernate.list.repository.TaskRepository;
 
 import java.util.List;
 
+/**
+ * Класс содержит основную логику обработки CRUD методов.
+ * @see TaskService
+ */
 @Service
 public class TaskServiceImpl implements TaskService{
 
+    /**
+     * Предоставляет встроенные методы для CRUD-операций.
+     *
+     * @see TaskRepository
+     */
     private final TaskRepository taskRepository;
 
+    /**
+     * Используется для сериализации и десериализации объектов Java в JSON
+     * и наоборот.
+     *
+     * @see ObjectMapper
+     */
     private final ObjectMapper objectMapper;
 
+    /**
+     * Создает экземпляр TaskServiceImpl с внедрением репозитория.
+     *
+     * @param taskRepository репозиторий, который будет использоваться
+     * @param objectMapper   класс ObjectMapper библиотеки Jackson, который будет использоваться
+     */
     public TaskServiceImpl(TaskRepository taskRepository,
                            ObjectMapper objectMapper) {
         this.taskRepository = taskRepository;
@@ -89,6 +109,15 @@ public class TaskServiceImpl implements TaskService{
         taskRepository.deleteById(id);
     }
 
+    /**
+     * Обновляет данные задачи ({@code targetTask}) по массиву операций ({@code patch}).
+     *
+     * @param patch         массив операций, которые нужно последовательно применить к целевому объекту
+     * @param targetTask    задача, данные которой нужно обновить
+     * @return              задача с обновленными данными
+     * @throws JsonPatchException       если некоторые атрибуты в фактическом JSON отсутствуют
+     * @throws JsonProcessingException  если в процессе сериализации/десериализации возникла ошибка
+     */
     private Task applyPatchToTask(JsonPatch patch, Task targetTask)  throws JsonPatchException, JsonProcessingException {
         JsonNode patched = patch.apply(objectMapper.convertValue(targetTask, JsonNode.class));
         return objectMapper.treeToValue(patched, Task.class);

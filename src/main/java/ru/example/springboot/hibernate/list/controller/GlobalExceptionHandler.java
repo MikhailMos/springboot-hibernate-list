@@ -16,8 +16,24 @@ import ru.example.springboot.hibernate.list.model.exception.Violation;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * Глобальный обработчик исключений приложения.
+ * <p>
+ * Этот класс перехватывает исключения, возникающие в слоях контроллеров,
+ * и преобразует их в удобочитаемые HTTP-ответы с соответствующими кодами статуса.
+ * Добавление конкретных обработчиков упрощает диагностику и обеспечивает
+ * единообразие форматов ошибок по всему API.</p>
+ */
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+
+    /**
+     * Обработчик исключения ResourceNotFoundException.
+     * Возвращает код состояния 404 (Not Found) и тело ошибки типа Violation.
+     *
+     * @param ex пойманное исключение, сигнализирующее об отсутствии запрашиваемого ресурса
+     * @return объект Violation с деталями нарушения
+     */
     @ExceptionHandler(ResourceNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public Violation catchResourceNotFoundException(ResourceNotFoundException ex) {
@@ -25,7 +41,12 @@ public class GlobalExceptionHandler {
     }
 
     /**
-     * ConstraintViolationException - выбрасывается при проверке валидности на уровне параметров метода.
+     * Обработчик исключения ConstraintViolationException.
+     * Выбрасывается при проверке валидности на уровне параметров метода.
+     * Возвращает код состояния 400 (Bad Request) и тело ошибки типа ValidationErrorResponse.
+     *
+     * @param ex пойманное исключение валидации ограничений
+     * @return объект ValidationErrorResponse с детализированными нарушениями
      */
     @ExceptionHandler(ConstraintViolationException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
@@ -44,7 +65,12 @@ public class GlobalExceptionHandler {
     }
 
     /**
-     * MethodArgumentNotValidException - выбрасывается при проверке валидности на уровне проверки тела запроса.
+     * Обработчик исключения MethodArgumentNotValidException.
+     * Выбрасывается при проверке валидности на уровне проверки тела запроса.
+     * Возвращает код состояния 400 (Bad Request) и тело ошибки типа ValidationErrorResponse.
+     *
+     * @param ex исключение, возникающее при невалидных аргументах метода
+     * @return объект ValidationErrorResponse с деталями ошибок валидации аргументов
      */
     @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
@@ -58,18 +84,41 @@ public class GlobalExceptionHandler {
         return new ValidationErrorResponse(violations);
     }
 
+    /**
+     * Обработчик исключения HttpMessageNotReadableException (и связанных).
+     * Возвращает код состояния 400 (Bad Request) и тело ошибки типа Violation.
+     *
+     * @param ex исключение, указывающее на проблему с читаемостью HTTP-сообщения
+     * @return объект Violation с деталями проблемы
+     */
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public Violation catchHttpMessageNotReadableException(HttpMessageNotReadableException ex) {
         return new Violation("", ex.getMessage());
     }
 
+    /**
+     * Обработчик исключения JsonPatchException.
+     * Выбрасывается если некоторые атрибуты в фактическом JSON отсутствуют.
+     * Возвращает код состояния 400 (Bad Request) и тело ошибки типа Violation.
+     *
+     * @param ex исключение, возникающее при применении JSON Patch
+     * @return объект Violation с деталями проблемы
+     */
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public Violation catchJsonPatchException(JsonPatchException ex) {
         return new Violation("", ex.getMessage());
     }
 
+    /**
+     * Обработчик исключения JsonProcessingException.
+     * Выбрасывается если в процессе сериализации/десериализации возникла ошибка
+     * Возвращает код состояния 400 (Bad Request) и тело ошибки типа Violation.
+     *
+     * @param ex исключение, возникающее при обработке JSON
+     * @return объект Violation с деталями проблемы
+     */
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public Violation catchJsonProcessingException(JsonProcessingException ex) {

@@ -1,4 +1,4 @@
-package ru.example.springboot_hibernate_list;
+package ru.example.springboot.hibernate.list;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

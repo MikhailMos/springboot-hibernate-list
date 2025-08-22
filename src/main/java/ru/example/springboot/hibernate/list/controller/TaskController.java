@@ -13,7 +13,7 @@ import java.util.List;
  * Обрабатывает HTTP-запросы, связанные с созданием, чтением, обновлением и удалением задач.
  */
 @RestController
-@RequestMapping("api/v1")
+@RequestMapping("/${root-mapping.path}")
 public class TaskController {
 
     /**

@@ -7,7 +7,7 @@ import jakarta.validation.constraints.Size;
 import java.util.Objects;
 
 /**
- *  Сущность задачи. представляет запись в таблице "tasks".
+ *  Сущность задачи. Представляет запись в таблице "tasks".
  */
 @Entity
 @Table(name = "tasks")

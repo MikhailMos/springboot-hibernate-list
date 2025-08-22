@@ -29,6 +29,7 @@ __Методы *DELETE*:__
 
 ## Стек технологий
 - Spring Boot
+- Spring Security
 - Hibernate
 - Maven
 - Tomcat

@@ -8,9 +8,7 @@ import java.util.List;
  * нескольких ошибках проверки полей в одном ответе.
  */
 public class ValidationErrorResponse {
-    /**
-     * Cписок нарушений, который необходимо включить в ответ.
-     */
+    /** Cписок нарушений, который необходимо включить в ответ. */
     private final List<Violation> violations;
 
     /**

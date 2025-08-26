@@ -11,6 +11,7 @@ import java.util.Optional;
  * @see JpaRepository
  */
 public interface UserRepository extends JpaRepository<UserEntity, Long> {
+
     /**
      * Возвращает объект User по имени.
      *

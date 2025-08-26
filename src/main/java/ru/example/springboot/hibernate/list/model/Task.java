@@ -13,32 +13,24 @@ import java.util.Objects;
 @Table(name = "tasks")
 public class Task {
 
-    /**
-     * Идентификатор задачи. Значение генерируется автоматически.
-     */
+    /** Идентификатор задачи. Значение генерируется автоматически. */
     @Id
     @Column(name = "id")
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    /**
-     * Описание задачи. Обязательно для заполнения.
-     */
+    /** Описание задачи. Обязательно для заполнения. */
     @Column(name = "description", nullable = false)
     @NotBlank(message = "Description must not be blank")
     @Size(min = 5, message = "The message length mast be more 5 characters")
     private String description;
 
-    /**
-     * Статус задачи. По умолчанию to-do.
-     */
+    /** Статус задачи. По умолчанию to-do. */
     @Column(name = "status", nullable = false)
     @Enumerated(EnumType.STRING)
     private TaskStatus status = TaskStatus.TODO;
 
-    /**
-     * Конструктор по умолчанию, обязательный для JPA.
-     */
+    /** Конструктор по умолчанию, обязательный для JPA. */
     public Task() {
     }
 
@@ -61,8 +53,6 @@ public class Task {
         this.description = description;
         this.status = status == null ? TaskStatus.TODO : status;
     }
-
-    // GETTERS
 
     /**
      * Возвращает идентификатор задачи.
@@ -90,8 +80,6 @@ public class Task {
     public TaskStatus getStatus() {
         return status;
     }
-
-    // SETTERS
 
     /**
      * Устанавливает идентификатор задачи.

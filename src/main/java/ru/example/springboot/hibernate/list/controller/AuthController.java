@@ -7,7 +7,6 @@ import ru.example.springboot.hibernate.list.mapper.UserMapper;
 import ru.example.springboot.hibernate.list.model.*;
 import ru.example.springboot.hibernate.list.service.UserService;
 
-import java.security.Principal;
 
 /**
  * REST контроллер для обработки аутентификации и регистрации пользователей.
@@ -56,10 +55,10 @@ public class AuthController {
      * @return DTO с информацией о пользователе
      */
     @GetMapping("/info")
-    public UserDto getUserInfo(@RequestBody Authentication authentication) {
-        Principal principal = (Principal) authentication.getPrincipal();
+    public UserDto getUserInfo(Authentication authentication) {
+        UserEntity userEntity = (UserEntity) authentication.getPrincipal();
 
-        return userMapper.map(userService.getUserByUsername(principal.getName()));
+        return userMapper.map(userService.getUserById(userEntity.getId()));
     }
 
 }

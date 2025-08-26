@@ -48,24 +48,51 @@ public class TaskServiceImpl implements TaskService{
         this.objectMapper = objectMapper;
     }
 
+    /**
+     * Возвращает список со всеми задачами.
+     * Только для транзакций чтения.
+     *
+     * @return список задач
+     */
     @Override
     @Transactional(readOnly = true)
     public List<Task> findAll() {
         return taskRepository.findAll();
     }
 
+    /**
+     * Сохраняет задачу в базу данных.
+     *
+     * @param task  задача, которую нужно сохранить
+     * @return сохраненная задача
+     */
     @Override
     @Transactional(readOnly = false)
     public Task save(Task task) {
         return taskRepository.save(task);
     }
 
+    /**
+     * Возвращает задачу найденную по идентификатору.
+     * Только для транзакций чтения.
+     *
+     * @param id    числовой идентификатор задачи, которую нужно найти
+     * @return      найденная задача
+     */
     @Override
     @Transactional(readOnly = true)
     public Task findById(Long id) {
         return taskRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Task with id " + id + " not found"));
     }
 
+    /**
+     * Обновляет задачу новыми данными. При этом задача перезаписывается полностью.
+     *
+     * @param id          числовой идентификатор задачи, которую нужно изменить
+     * @param changedTask задача содержащая измененные данные
+     * @return            измененная задача
+     * @throws ResourceNotFoundException если задача не была найдена по идентификатору
+     */
     @Override
     @Transactional
     public Task update(Long id, Task changedTask) throws ResourceNotFoundException {
@@ -75,6 +102,14 @@ public class TaskServiceImpl implements TaskService{
         return taskRepository.save(foundTask);
     }
 
+    /**
+     * Обновляет статус задачи.  При этом задача перезаписывается полностью.
+     *
+     * @param id        числовой идентификатор задачи, статус которой нужно изменить
+     * @param newStatus новый статус
+     * @return          измененная задача
+     * @throws ResourceNotFoundException если задача не была найдена по идентификатору
+     */
     @Override
     @Transactional
     public Task update(Long id, TaskStatus newStatus) throws ResourceNotFoundException {
@@ -85,6 +120,13 @@ public class TaskServiceImpl implements TaskService{
         return taskRepository.save(task);
     }
 
+    /**
+     * Обновляет статус задачи. Задача обновляется частично, благодаря JsonPatch.
+     *
+     * @param id    числовой идентификатор задачи, статус которой нужно изменить
+     * @param patch список операций, которые нужно последовательно применить к целевому объекту
+     * @return      задача с измененным статусом
+     */
     @Override
     @Transactional
     public Task update(Long id, JsonPatch patch) {
@@ -99,6 +141,11 @@ public class TaskServiceImpl implements TaskService{
 
     }
 
+    /**
+     * Удаляет задачу по идентификатору задачи.
+     *
+     * @param id    числовой идентификатор задачи, которую нужно удалить
+     */
     @Override
     @Transactional
     public void deleteById(Long id) {

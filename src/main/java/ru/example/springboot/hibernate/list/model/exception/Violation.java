@@ -13,13 +13,11 @@ import com.fasterxml.jackson.databind.annotation.JsonNaming;
  */
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class Violation {
-    /**
-     * Имя поля, проверка которого потерпела неудачу.
-     */
+
+    /** Имя поля, проверка которого потерпела неудачу. */
     private final String fieldName;
-    /**
-     * Сообщение об ошибке.
-     */
+
+    /** Сообщение об ошибке. */
     private final String message;
 
     /**

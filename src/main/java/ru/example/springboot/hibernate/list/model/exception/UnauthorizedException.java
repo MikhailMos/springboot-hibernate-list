@@ -7,9 +7,7 @@ package ru.example.springboot.hibernate.list.model.exception;
  */
 public class UnauthorizedException extends RuntimeException {
 
-    /**
-     * Имя поля.
-     */
+    /** Имя поля. */
     private String fieldName;
 
     /**

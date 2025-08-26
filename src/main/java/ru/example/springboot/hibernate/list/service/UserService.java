@@ -2,6 +2,7 @@ package ru.example.springboot.hibernate.list.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import ru.example.springboot.hibernate.list.model.TokenDetails;
@@ -21,14 +22,19 @@ import java.util.Optional;
 @Service
 public class UserService {
 
+    /** Кодировщик паролей, используемый для хеширования паролей. */
+    private final PasswordEncoder passwordEncoder;
+
     @Autowired
     private UserRepository userRepository;
 
     @Autowired
-    private PasswordEncoder passwordEncoder;
-
-    @Autowired
     private JwtUtil jwtUtil;
+
+    /** Конструктор по умолчанию. */
+    public UserService() {
+        this.passwordEncoder = new BCryptPasswordEncoder();
+    }
 
     /**
      * Возвращает пользователя по имени пользователя.

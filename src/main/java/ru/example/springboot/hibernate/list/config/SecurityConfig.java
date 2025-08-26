@@ -37,16 +37,6 @@ public class SecurityConfig {
     private JwtUtil jwtUtil;
 
     /**
-     * Компонент, предоставляющий кодировщик паролей, используемый для хеширования паролей.
-     *
-     * @return экземпляр PasswordEncoder
-     */
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
-
-    /**
      * Предоставляет AuthenticationManager, используемый процессом аутентификации.
      *
      * @param authenticationConfiguration   конфигурация, содержащая настройки аутентификации

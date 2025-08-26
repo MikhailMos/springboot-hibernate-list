@@ -1,5 +1,8 @@
 package ru.example.springboot.hibernate.list.model.exception;
 
+import com.fasterxml.jackson.databind.PropertyNamingStrategies;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
+
 /**
  *  Представляет собой единичную ошибку (нарушение) проверки.
  *  <p>
@@ -8,6 +11,7 @@ package ru.example.springboot.hibernate.list.model.exception;
  *      Название поля может быть пустым, если ошибка не связана с валидацией.
  *  </p>
  */
+@JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class Violation {
     /**
      * Имя поля, проверка которого потерпела неудачу.

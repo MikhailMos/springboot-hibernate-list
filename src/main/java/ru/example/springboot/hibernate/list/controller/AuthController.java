@@ -1,68 +1,65 @@
 package ru.example.springboot.hibernate.list.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-import ru.example.springboot.hibernate.list.model.AuthenticationRequest;
-import ru.example.springboot.hibernate.list.model.UserEntity;
-import ru.example.springboot.hibernate.list.repository.UserRepository;
-import ru.example.springboot.hibernate.list.service.CustomUserDetailsService;
-import ru.example.springboot.hibernate.list.util.JwtUtil;
+import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.*;
+import ru.example.springboot.hibernate.list.mapper.UserMapper;
+import ru.example.springboot.hibernate.list.model.*;
+import ru.example.springboot.hibernate.list.service.UserService;
 
-import javax.xml.crypto.Data;
-import java.time.LocalDateTime;
+import java.security.Principal;
 
+/**
+ * REST контроллер для обработки аутентификации и регистрации пользователей.
+ * Обеспечивает конечные точки по регистрации, входу в систему и получению информации
+ * о текущем пользователе.
+ */
 @RestController
-@RequestMapping("/${root-mapping.path}")
+@RequestMapping("/${root-mapping.path}/auth")
 public class AuthController {
 
     @Autowired
-    private AuthenticationManager authenticationManager;
-
+    private UserService userService;
     @Autowired
-    private CustomUserDetailsService userDetailsService;
+    private UserMapper userMapper;
 
-    @Autowired
-    private UserRepository userRepository;
-
-    @Autowired
-    private PasswordEncoder passwordEncoder;
-
-    @Autowired
-    private JwtUtil jwtUtil;
-
+    /**
+     * Регистрация нового пользователя.
+     *
+     * @param userDto объект данных пользователя для регистрации
+     * @return сериализованный объект DTO зарегистрированного пользователя
+     */
     @PostMapping("/register")
-    public String registerUser(@RequestBody UserEntity user) {
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
-        if (user.getCreatedAt() == null) {
-            user.setCreatedAt(LocalDateTime.now());
-        }
-        if (user.getUpdatedAt() == null) {
-            user.setUpdatedAt(user.getCreatedAt());
-        }
-        if (!user.isEnabled()) {
-            user.setEnabled(true);
-        }
-        userRepository.save(user);
-        return "User registered successfully";
+    public UserDto registerUser(@RequestBody UserDto userDto) {
+        UserEntity userEntity = userMapper.map(userDto);
+        return userMapper.map(userService.registerUser(userEntity));
     }
 
+    /**
+     * Аутентификация пользователя.
+     *
+     * @param authenticationRequest данные для входа (имя пользователя и пароль)
+     * @return объект с информацией об аутентификации (например, токен)
+     * @throws Exception если произошла ошибка аутентификации
+     */
     @PostMapping("/login")
-    public String loginUser(@RequestBody AuthenticationRequest authenticationRequest) throws Exception {
-        authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(authenticationRequest.getUsername(), authenticationRequest.getPassword())
-        );
+    public AuthenticationResponse loginUser(@RequestBody AuthenticationRequest authenticationRequest) throws Exception {
+        TokenDetails tokenDetails = userService.authenticate(authenticationRequest.getUsername(), authenticationRequest.getPassword());
 
-        final UserDetails userDetails = userDetailsService.loadUserByUsername(authenticationRequest.getUsername());
-        final String jwt = jwtUtil.generateToken(userDetails);
+        return new AuthenticationResponse(tokenDetails.getUserId(), tokenDetails.getToken(), tokenDetails.getIssuedAt(), tokenDetails.getExpiresAt());
+    }
 
-        return jwt;
+    /**
+     * Получение информации о текущем пользователе.
+     *
+     * @param authentication данные аутентификации текущего пользователя
+     * @return DTO с информацией о пользователе
+     */
+    @GetMapping("/info")
+    public UserDto getUserInfo(@RequestBody Authentication authentication) {
+        Principal principal = (Principal) authentication.getPrincipal();
+
+        return userMapper.map(userService.getUserByUsername(principal.getName()));
     }
 
 }

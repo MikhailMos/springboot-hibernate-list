@@ -10,9 +10,11 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import ru.example.springboot.hibernate.list.model.exception.ResourceNotFoundException;
+import ru.example.springboot.hibernate.list.model.exception.UnauthorizedException;
 import ru.example.springboot.hibernate.list.model.exception.ValidationErrorResponse;
 import ru.example.springboot.hibernate.list.model.exception.Violation;
 
+import java.sql.SQLException;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -91,7 +93,7 @@ public class GlobalExceptionHandler {
      * @param ex исключение, указывающее на проблему с читаемостью HTTP-сообщения
      * @return объект Violation с деталями проблемы
      */
-    @ExceptionHandler
+    @ExceptionHandler(HttpMessageNotReadableException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public Violation catchHttpMessageNotReadableException(HttpMessageNotReadableException ex) {
         return new Violation("", ex.getMessage());
@@ -105,7 +107,7 @@ public class GlobalExceptionHandler {
      * @param ex исключение, возникающее при применении JSON Patch
      * @return объект Violation с деталями проблемы
      */
-    @ExceptionHandler
+    @ExceptionHandler(JsonPatchException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public Violation catchJsonPatchException(JsonPatchException ex) {
         return new Violation("", ex.getMessage());
@@ -119,9 +121,36 @@ public class GlobalExceptionHandler {
      * @param ex исключение, возникающее при обработке JSON
      * @return объект Violation с деталями проблемы
      */
-    @ExceptionHandler
+    @ExceptionHandler(JsonProcessingException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public Violation catchJsonProcessingException(JsonProcessingException ex) {
+        return new Violation("", ex.getMessage());
+    }
+
+    /**
+     * Обработчик исключения UnauthorizedException.
+     * Выбрасывается если идет обращение к ресурсу и токен не валиден или его нет.
+     * Возвращает код состояния 401 (Unauthorized) и тело ошибки типа Violation.
+     *
+     * @param ex исключение, возникающее при проверке токена
+     * @return объект Violation с деталями проблемы
+     */
+    @ExceptionHandler(UnauthorizedException.class)
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    public Violation catchUnauthorizedException(UnauthorizedException ex) {
+        return new Violation(ex.getFieldName(), ex.getMessage());
+    }
+
+    /**
+     * Обработчик исключения SQLException.
+     * Выбрасывается если возникает ошибка доступа к базе данных или каких то других ошибках, связанных с базой данных.
+     *
+     * @param ex исключение, возникающее в базе данных
+     * @return объект Violation с деталями проблемы
+     */
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public Violation catchSQLException(SQLException ex) {
         return new Violation("", ex.getMessage());
     }
 }

@@ -1,0 +1,25 @@
+spring:
+  application:
+    name: springboot-hibernate-list
+#database
+  datasource:
+    url: jdbc:postgresql://localhost:5432/list_todo
+    username: root
+    password: 123
+#hibernate
+  jpa:
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+  hibernate:
+    ddl-auto: update
+
+#jwt
+jwt:
+  expiration: 3600
+  issuer: restapi
+  secret: secret
+
+#root path
+root-mapping:
+  path: api/v1

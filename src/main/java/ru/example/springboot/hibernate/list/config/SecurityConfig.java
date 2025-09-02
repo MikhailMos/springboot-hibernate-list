@@ -10,8 +10,6 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import ru.example.springboot.hibernate.list.service.UserService;
@@ -19,7 +17,7 @@ import ru.example.springboot.hibernate.list.util.JwtUtil;
 
 /**
  * Конфигурация Spring Security для приложения.
- * Определяет кодирование паролей, менеджер аутентификации, цепочку фильтров безопасности
+ * Менеджер аутентификации, цепочку фильтров безопасности
  * и фильтрующий компонент JWT, а также общедоступные маршруты.
  */
 @Configuration
@@ -99,4 +97,15 @@ public class SecurityConfig {
     public JwtRequestFilter jwtRequestFilter() {
         return new JwtRequestFilter(jwtUtil, userService);
     }
+
+//    /**
+//     * Устанавливает тип кодировщика.
+//     *
+//     * @return кодировщик
+//     */
+//    @Bean
+//    public PasswordEncoder passwordEncoder() {
+//        return new BCryptPasswordEncoder();
+//    }
+
 }

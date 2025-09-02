@@ -3,7 +3,10 @@ package ru.example.springboot.hibernate.list.util;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import ru.example.springboot.hibernate.list.model.UserEntity;
 
@@ -27,6 +30,7 @@ public class JwtUtil {
     private String issuer;
     @Value("${jwt.secret}")
     private String secret;
+
 
     /**
      * Извлекает идентификатор пользователя из токена.

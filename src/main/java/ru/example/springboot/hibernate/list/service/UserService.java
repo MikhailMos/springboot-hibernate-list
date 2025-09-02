@@ -2,7 +2,6 @@ package ru.example.springboot.hibernate.list.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import ru.example.springboot.hibernate.list.model.TokenDetails;
@@ -10,6 +9,7 @@ import ru.example.springboot.hibernate.list.model.UserEntity;
 import ru.example.springboot.hibernate.list.model.UserRole;
 import ru.example.springboot.hibernate.list.model.exception.UnauthorizedException;
 import ru.example.springboot.hibernate.list.repository.UserRepository;
+import ru.example.springboot.hibernate.list.util.BCryptEncoder;
 import ru.example.springboot.hibernate.list.util.JwtUtil;
 
 import java.time.LocalDateTime;
@@ -22,18 +22,21 @@ import java.util.Optional;
 @Service
 public class UserService {
 
-    /** Кодировщик паролей, используемый для хеширования паролей. */
-    private final PasswordEncoder passwordEncoder;
+    /** Репозиторий */
+    private final UserRepository userRepository;
+    /** Содержит методы работы с JWT */
+    private final JwtUtil jwtUtil;
+    /** Содержит методы работы с  */
+    private final BCryptEncoder bCryptEncoder;
 
-    @Autowired
-    private UserRepository userRepository;
-
-    @Autowired
-    private JwtUtil jwtUtil;
-
-    /** Конструктор по умолчанию. */
-    public UserService() {
-        this.passwordEncoder = new BCryptPasswordEncoder();
+    /** Конструктор с обязательными аргументами */
+    public UserService(@Autowired UserRepository userRepository,
+                       @Autowired JwtUtil jwtUtil,
+                       @Autowired BCryptEncoder bCryptEncoder)
+    {
+        this.userRepository = userRepository;
+        this.jwtUtil = jwtUtil;
+        this.bCryptEncoder = bCryptEncoder;
     }
 
     /**
@@ -77,7 +80,7 @@ public class UserService {
      */
     public UserEntity registerUser(UserEntity userEntity) {
 
-        userEntity.setPassword(passwordEncoder.encode(userEntity.getPassword()));
+        userEntity.setPassword(bCryptEncoder.encode(userEntity.getPassword()));
         userEntity.setCreatedAt(LocalDateTime.now());
         userEntity.setUpdatedAt(userEntity.getCreatedAt());
         userEntity.setEnabled(true);
@@ -103,7 +106,7 @@ public class UserService {
             throw new UnauthorizedException("Account disabled", "username");
         }
 
-        if (!passwordEncoder.matches(password, userEntity.getPassword())) {
+        if (!bCryptEncoder.matches(password, userEntity.getPassword())) {
             throw new UnauthorizedException("Invalid password", "password");
         }
 
@@ -115,4 +118,6 @@ public class UserService {
                 jwtUtil.extractIssued(token),
                 jwtUtil.extractExpiration(token));
     }
+
+
 }

@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+    <title>Список задач</title>
+</head>
+<body class="w3-light-grey">
+    <h2>Задачи</h2>
+    <button class="w3-btn w3-hover-blue w3-round-large" onclick="location.href='/add'">Добавить задачу</button><br>
+    <table class="w3-table-all w3-hoverable">
+        <thead>
+            <tr class="w3-green">
+                <th>ID</th>
+                <th>Описание</th>
+                <th>Статус</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="task : ${tasks}">
+                <td th:text="${task.id}"></td>
+                <td th:text="${task.description}"></td>
+                <td th:text="${task.status}"></td>
+                <td>
+                    <button class="w3-button w3-round w3-yellow">Изменить</button>
+                    <button class="w3-button w3-round w3-red">Удалить</button>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</body>
+</html>

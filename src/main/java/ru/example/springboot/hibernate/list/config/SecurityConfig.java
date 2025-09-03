@@ -12,6 +12,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.server.authentication.RedirectServerAuthenticationEntryPoint;
 import ru.example.springboot.hibernate.list.service.UserService;
 import ru.example.springboot.hibernate.list.util.JwtUtil;
 
@@ -26,7 +27,9 @@ import ru.example.springboot.hibernate.list.util.JwtUtil;
 public class SecurityConfig {
 
     /** Публичные маршруты, не требующие аутентификации. */
-    private final String[] publicRoutes = {"/api/v1/auth/register", "/api/v1/auth/login"};
+    private final String[] publicRoutes = {"/api/v1/auth/register", "/api/v1/auth/login", "/login", "/login-form", "/register"};
+    /** Статические маршруты, не требующие аутентификации. */
+    private final String[] staticRoutes = {"/static/**", "/css/**", "/js/**", "/images/**", "/favicon.ico"};
 
     @Autowired
     private UserService userService;
@@ -58,20 +61,31 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .csrf((csrf) -> csrf.disable())
+//                .exceptionHandling(exceptionHandlingSpec ->
+//                        exceptionHandlingSpec
+//                                .authenticationEntryPoint((AuthenticationEntryPoint) new RedirectServerAuthenticationEntryPoint("/login")))
                 .authorizeHttpRequests((authorizeHttpRequests) ->
                     authorizeHttpRequests
                             .requestMatchers(HttpMethod.OPTIONS).permitAll()
+                            .requestMatchers(staticRoutes).permitAll()
                             .requestMatchers(publicRoutes).permitAll()
                             .anyRequest().authenticated()
                 )
-// настройка форм логирования, пока не нужно!
-//                .formLogin((formLogin) ->
-//                        formLogin
-//                                .usernameParameter("username")
-//                                .passwordParameter("password")
-//                                .loginPage("/authentication/login")
-//                                .failureUrl("/authentication/login?failed")
-//                                .loginProcessingUrl("/authentication/login/process")
+                .formLogin((formLogin) ->
+                        formLogin
+                                .usernameParameter("username")
+                                .passwordParameter("password")
+                                .loginPage("/login-form")
+                                .loginProcessingUrl("/login")
+                                .defaultSuccessUrl("/index", true)
+                                .failureUrl("/login-form?error=true")
+                                .permitAll()
+                )
+// TODO: реализовать выход
+//                .logout(logout -> logout
+//                        .logoutUrl("/logout")
+//                        .logoutSuccessUrl("/login?logout")
+//                        .permitAll()
 //                )
                 .sessionManagement((sessionManagement) ->
                     sessionManagement
@@ -98,6 +112,14 @@ public class SecurityConfig {
         return new JwtRequestFilter(jwtUtil, userService);
     }
 
+//    //** Адаптер для аутентификации через Dao */
+//    @Bean
+//    public DaoAuthenticationProvider authenticationProvider() {
+//        DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
+//        authProvider.setUserDetailsService(userDetailsService);
+//        authProvider.setPasswordEncoder(passwordEncoder());
+//        return authProvider;
+//    }
 //    /**
 //     * Устанавливает тип кодировщика.
 //     *

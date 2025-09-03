@@ -2,7 +2,6 @@ package ru.example.springboot.hibernate.list.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import ru.example.springboot.hibernate.list.model.TokenDetails;
 import ru.example.springboot.hibernate.list.model.UserEntity;
@@ -44,8 +43,9 @@ public class UserService {
      *
      * @param username Имя пользователя
      * @return объект UserEntity, соответствующий указанному имени пользователя
+     * @throws UsernameNotFoundException если пользователь не найден
      */
-    public UserEntity getUserByUsername(String username) {
+    public UserEntity getUserByUsername(String username)  throws UsernameNotFoundException {
         Optional<UserEntity> userEntityOptional = userRepository.findByUsername(username);
 
         if (userEntityOptional.isEmpty()) {

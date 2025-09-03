@@ -47,6 +47,23 @@ public class UserEntity {
     }
 
     /**
+     * Конструктор с минимальным кол-вом параметров.
+     * Создает пользователя с ролью USER, включенной записью и с текущим временем создания и изменения.
+     *
+     * @param username имя пользователя
+     * @param password пароль пользователя
+     */
+    public UserEntity(String username, String password) {
+        this.username = username;
+        this.password = password;
+        this.role = UserRole.USER;
+        this.enabled = true;
+        this.createdAt = LocalDateTime.now();
+        this.updatedAt = this.createdAt;
+    }
+
+    /**
+     * Конструктор со всеми параметрами.
      * Создает пользователя.
      *
      * @param username  имя пользователя

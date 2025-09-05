@@ -17,10 +17,14 @@ import ru.example.springboot.hibernate.list.service.UserService;
 @RequestMapping("/${root-mapping.path}/auth")
 public class AuthController {
 
-    @Autowired
-    private UserService userService;
-    @Autowired
-    private UserMapper userMapper;
+    private final UserService userService;
+    private final UserMapper userMapper;
+
+    public AuthController(@Autowired UserService userService,
+                          @Autowired UserMapper userMapper) {
+        this.userService = userService;
+        this.userMapper = userMapper;
+    }
 
     /**
      * Регистрация нового пользователя.

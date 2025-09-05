@@ -35,6 +35,6 @@ public class WebTaskController {
                           @ModelAttribute("task") Task task) {
 
         Task savedTask = taskService.save(task);
-        return "index";
+        return "redirect:/index";
     }
 }

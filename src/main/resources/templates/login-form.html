@@ -12,7 +12,7 @@
             <div class="w3-container w3-center w3-green">
                 <h2>Вход в систему</h2>
             </div>
-            <form class="w3-selection w3-light-grey w3-padding" method="post" action="login">
+            <form class="w3-selection w3-light-grey w3-padding" method="post" action="login-form">
                 <p>
                     <label for="username">Имя пользователя</label>
                     <input type="text" id="username" name="username" class="w3-input w3-animate-input w3-border w3-round-large" style="width: 30%" placeholder="Имя пользователя" required autofocus>
@@ -29,5 +29,22 @@
         <button class="w3-btn w3-round-large" onclick="location.href='/register'">Зарегистрироваться</button>
     </div>
     <div name="error" th:text="${error}"></div>
+
+    <!--&lt;!&ndash; use param.error assuming FormLoginConfigurer#failureUrl contains the query parameter error &ndash;&gt;
+    <th:if test="${param.error != null}">
+        <div>
+            Failed to login.
+            <c:if test="${SPRING_SECURITY_LAST_EXCEPTION != null}">
+                Reason: <c:out value="${SPRING_SECURITY_LAST_EXCEPTION.message}" />
+            </c:if>
+        </div>
+    </th:if>
+    &lt;!&ndash; the configured LogoutConfigurer#logoutSuccessUrl is /login?logout and contains the query param logout &ndash;&gt;
+    <c:if test="${param.logout != null}">
+        <div>
+            You have been logged out.
+        </div>
+    </c:if>-->
+
 </body>
 </html>

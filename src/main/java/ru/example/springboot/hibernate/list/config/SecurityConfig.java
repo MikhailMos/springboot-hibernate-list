@@ -12,7 +12,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.security.web.server.authentication.RedirectServerAuthenticationEntryPoint;
+
 import ru.example.springboot.hibernate.list.service.UserService;
 import ru.example.springboot.hibernate.list.util.JwtUtil;
 
@@ -31,11 +31,13 @@ public class SecurityConfig {
     /** Статические маршруты, не требующие аутентификации. */
     private final String[] staticRoutes = {"/static/**", "/css/**", "/js/**", "/images/**", "/favicon.ico"};
 
-    @Autowired
-    private UserService userService;
+    private final UserService userService;
+    private final JwtUtil jwtUtil;
 
-    @Autowired
-    private JwtUtil jwtUtil;
+    public SecurityConfig(@Autowired UserService userService, @Autowired JwtUtil jwtUtil) {
+        this.userService = userService;
+        this.jwtUtil = jwtUtil;
+    }
 
     /**
      * Предоставляет AuthenticationManager, используемый процессом аутентификации.
@@ -61,9 +63,6 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .csrf((csrf) -> csrf.disable())
-//                .exceptionHandling(exceptionHandlingSpec ->
-//                        exceptionHandlingSpec
-//                                .authenticationEntryPoint((AuthenticationEntryPoint) new RedirectServerAuthenticationEntryPoint("/login")))
                 .authorizeHttpRequests((authorizeHttpRequests) ->
                     authorizeHttpRequests
                             .requestMatchers(HttpMethod.OPTIONS).permitAll()
@@ -81,20 +80,19 @@ public class SecurityConfig {
                                 .failureUrl("/login-form?error=true")
                                 .permitAll()
                 )
-// TODO: реализовать выход
-//                .logout(logout -> logout
-//                        .logoutUrl("/logout")
-//                        .logoutSuccessUrl("/login?logout")
-//                        .permitAll()
-//                )
+                .logout(logout -> logout
+                        .logoutUrl("/logout")
+                        .logoutSuccessUrl("/login-form?logout")
+                        .permitAll()
+                )
                 .sessionManagement((sessionManagement) ->
                     sessionManagement
                             .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                            .sessionConcurrency((sessionConcurrtycy) ->
-                                    sessionConcurrtycy
-                                            .maximumSessions(1)
-                                            //.expiredUrl("/login?expired")
-                            )
+//                            .sessionConcurrency((sessionConcurrtycy) ->
+//                                    sessionConcurrtycy
+//                                            .maximumSessions(1)
+//                                            //.expiredUrl("/login?expired")
+//                            )
                 );
 
         http.addFilterBefore(jwtRequestFilter(), UsernamePasswordAuthenticationFilter.class);

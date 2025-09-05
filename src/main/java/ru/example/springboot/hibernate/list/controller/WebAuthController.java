@@ -30,14 +30,14 @@ public class WebAuthController {
         return "login-form";
     }
 
-    @PostMapping("/login")
+    @PostMapping("/login-form")
     public String login(@RequestParam String username,
                         @RequestParam String password,
                         Model model) {
 
         try {
             TokenDetails tokenDetails = userService.authenticate(username, password);
-            model.addAttribute("Authorization", tokenDetails.getToken()); // Token
+            model.addAttribute("Token", tokenDetails.getToken()); // Token
         } catch (UnauthorizedException e) {
             model.addAttribute("error", e.getMessage());
             return "login-form";

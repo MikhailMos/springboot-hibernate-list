@@ -3,10 +3,7 @@ package ru.example.springboot.hibernate.list.util;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import ru.example.springboot.hibernate.list.model.UserEntity;
 
@@ -18,7 +15,7 @@ import java.util.Map;
 import java.util.function.Function;
 
 /**
- * Утилита для работы с JWT-токенами.
+ * Утилита для работы с JWT-токенами. Отвечает за генерацию и валидацию JST
  * Предоставляет методы по извлечению информации из токена, генерации и валидации токенов.
  */
 @Service

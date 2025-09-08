@@ -1,8 +1,10 @@
 package ru.example.springboot.hibernate.list.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.web.embedded.undertow.UndertowServletWebServerFactory;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.example.springboot.hibernate.list.model.TokenDetails;
 import ru.example.springboot.hibernate.list.model.UserEntity;
 import ru.example.springboot.hibernate.list.model.UserRole;
@@ -12,6 +14,7 @@ import ru.example.springboot.hibernate.list.util.BCryptEncoder;
 import ru.example.springboot.hibernate.list.util.JwtUtil;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -78,6 +81,7 @@ public class UserService {
      * @param userEntity объект пользователя, который требуется зарегистрировать
      * @return зарегистрированный объект UserEntity
      */
+    @Transactional
     public UserEntity registerUser(UserEntity userEntity) {
 
         userEntity.setPassword(bCryptEncoder.encode(userEntity.getPassword()));
@@ -89,6 +93,29 @@ public class UserService {
         }
 
         return userRepository.save(userEntity);
+    }
+
+    /**
+     * Возвращает список пользователей.
+     *
+     * @return список пользователей
+     */
+    @Transactional(readOnly = true)
+    public List<UserEntity> findAllUsers() {
+        return userRepository.findAll();
+    }
+
+    /**
+     * Удаляет пользователя из базы по идентификатору.
+     *
+     * @param id    идентификатор пользователя
+     */
+    @Transactional
+    public void deleteUser(Long id) {
+        if (!userRepository.existsById(id)) {
+            throw new IllegalArgumentException("User not found with id: " + id);
+        }
+        userRepository.deleteById(id);
     }
 
     /**

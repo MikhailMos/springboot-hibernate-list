@@ -2,13 +2,18 @@ package ru.example.springboot.hibernate.list.controller;
 
 import com.github.fge.jsonpatch.JsonPatch;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import ru.example.springboot.hibernate.list.mapper.TaskMapper;
 import ru.example.springboot.hibernate.list.model.Task;
 import ru.example.springboot.hibernate.list.model.TaskDto;
+import ru.example.springboot.hibernate.list.model.UserEntity;
 import ru.example.springboot.hibernate.list.service.TaskService;
 
+import java.security.Principal;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -53,10 +58,12 @@ public class TaskRestController {
      * @return      созданная задача
      */
     @PostMapping("/tasks")
-    public TaskDto createTask(@RequestBody Task task) {
+    public TaskDto createTask(@RequestBody Task task,
+                              Authentication authentication) {
+
+        setUserFromAuthentication(task, authentication);
 
         return taskMapper.map(taskService.save(task));
-
     }
 
     /**
@@ -80,7 +87,11 @@ public class TaskRestController {
      * @return              обновленная задача
      */
     @PutMapping("/tasks/{id}")
-    public TaskDto updateTask(@PathVariable("id") Long id, @RequestBody Task changedTask) {
+    public TaskDto updateTask(@PathVariable("id") Long id,
+                              @RequestBody Task changedTask,
+                              Authentication authentication) {
+
+        setUserFromAuthentication(changedTask, authentication);
 
         return taskMapper.map(taskService.update(id, changedTask));
 
@@ -94,7 +105,11 @@ public class TaskRestController {
      * @return              задача после обновления статуса
      */
     @PutMapping("/tasks/{id}/status")
-    public TaskDto updateStatus(@PathVariable("id") Long id, @RequestBody Task changedTask) {
+    public TaskDto updateStatus(@PathVariable("id") Long id,
+                                @RequestBody Task changedTask,
+                                Authentication authentication) {
+
+        setUserFromAuthentication(changedTask, authentication);
 
         return taskMapper.map(taskService.update(id, changedTask.getStatus()));
 
@@ -120,9 +135,28 @@ public class TaskRestController {
      * @param id    идентификатор задачи, которую нужно удалить
      */
     @DeleteMapping("/tasks/{id}")
-    public void deleteTask(@PathVariable("id") Long id) {
+    public Map<String, String> deleteTask(@PathVariable("id") Long id) {
 
         taskService.deleteById(id);
+
+        Map<String, String> results = new HashMap<>(2);
+        results.put("userId", id.toString());
+        results.put("message", "Пользователь удален");
+
+        return results;
+    }
+
+    /**
+     * Вспомогательный метод, достает текущего пользователя из Authentication
+     * и устанавливает его задаче.
+     *
+     * @param task              создаваемая задача
+     * @param authentication    информацияо о текущем пользователе и его привелегиях
+     */
+    private void setUserFromAuthentication(Task task, Authentication authentication) {
+
+        UserEntity user = (UserEntity) authentication.getPrincipal();
+        task.setUser(user);
 
     }
 

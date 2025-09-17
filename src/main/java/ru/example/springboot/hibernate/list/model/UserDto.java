@@ -44,21 +44,6 @@ public class UserDto {
     private LocalDateTime updatedAt;
 
     /**
-     * Конструктор создающий пользователя с данными из UserEntity (копирует данные).
-     *
-     * @param userEntity сущность хранящаяся в базе
-     */
-    public UserDto(UserEntity userEntity) {
-        this.id = userEntity.getId();
-        this.username = userEntity.getUsername();
-        this.password = userEntity.getPassword();
-        this.role = userEntity.getRole();
-        this.enabled = userEntity.isEnabled();
-        this.createdAt = userEntity.getCreatedAt();
-        this.updatedAt = userEntity.getUpdatedAt();
-    }
-
-    /**
      * Вместо пароля подставляет маску из звездочек.
      *
      * @return строка из звездочек

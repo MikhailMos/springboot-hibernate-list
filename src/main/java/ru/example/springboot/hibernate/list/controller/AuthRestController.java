@@ -79,7 +79,7 @@ public class AuthRestController {
     public List<UserDto> getAllUsersFromDataBase() {
         return userService.findAllUsers().stream()
                 .map(userEntity ->
-                        new UserDto(userEntity))
+                        userMapper.map(userEntity))
                 .collect(Collectors.toList());
     }
 

@@ -5,6 +5,7 @@ import com.github.fge.jsonpatch.JsonPatchException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -53,7 +54,10 @@ public class GlobalExceptionHandler {
             body.put("errorCode", ex.getErrorCode());
             body.put("message", ex.getMessage());
 
-            return ResponseEntity.badRequest().contentType(MediaType.APPLICATION_JSON).body(body);
+            return ResponseEntity
+                    .status(HttpStatus.NOT_FOUND)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(body);
         }
 
         // вернуть http
@@ -251,7 +255,10 @@ public class GlobalExceptionHandler {
             body.put("errorCode", "INTERNAL_SERVER_ERROR");
             body.put("message", ex.getMessage());
 
-            return ResponseEntity.badRequest().contentType(MediaType.APPLICATION_JSON).body(body);
+            return ResponseEntity
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(body);
         }
 
         // вернуть http
@@ -290,8 +297,8 @@ public class GlobalExceptionHandler {
     private boolean isApiRequest(final HttpServletRequest request) {
         // Определяем, какой формат требуется клиент: JSON (REST) или HTML (Web)
         String contentType = request.getContentType(); // request.getHeader("Content-type");
-        return contentType != null &&
-                (contentType.contains(MediaType.APPLICATION_JSON_VALUE) || contentType.contains("application/vnd.api+json"));
+        return contentType != null && contentType.contains("json");
+               // (contentType.contains(MediaType.APPLICATION_JSON_VALUE) || contentType.contains("application/vnd.api+json"));
     }
 
     /**

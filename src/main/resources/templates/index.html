@@ -1,16 +1,25 @@
 <!DOCTYPE html>
 <html lang="ru" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="UTF-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
     <title>Список задач</title>
 </head>
 <body class="w3-light-grey">
-    <div th:replace="fragments/header :: header"></div>
+    <div th:replace="~{fragments/header :: header}"></div>
     <h2>Задачи</h2>
-<!--    <div th:if="${tasks.size()} == 0" class="w3-container">Пока нет задач.</div>-->
-<!--    th:if="${tasks.size()} &gt; 0"-->
-    <table class="w3-table-all w3-hoverable">
+    <div th:if="${tasks.isEmpty()}" class="w3-container">Пока нет задач.</div>
+
+    <!--<div th:if="${message}" id="message" class="w3-panel w3-display-container w3-blue">
+        <span onclick="this.parentElement.style.display='none'"
+              class="w3-button w3-large w3-display-topright">&times;</span>
+        <h3>Информация!</h3>
+        <p th:text="${message}"></p>
+    </div>-->
+    <div th:replace="~{fragments/message :: message}"></div>
+
+    <table th:if="${tasks.size()} &gt; 0" class="w3-table-all w3-hoverable">
         <thead>
             <tr class="w3-green">
                 <th>ID</th>
@@ -24,9 +33,9 @@
                 <td th:text="${task.id}"></td>
                 <td th:text="${task.description}"></td>
                 <td th:text="${task.status}"></td>
-                <td>
-                    <button class="w3-button w3-round w3-yellow">Изменить</button>
-                    <button class="w3-button w3-round w3-red">Удалить</button>
+                <td class="w3-left">
+                    <a href="task-edit.html" th:href="@{/edit/{id}(id=${task.id})}" class="w3-button w3-round w3-yellow">Изменить</a>
+                    <a th:href="@{/delete/{id}(id=${task.id})}" class="w3-button w3-round w3-red">Удалить</a>
                 </td>
             </tr>
         </tbody>

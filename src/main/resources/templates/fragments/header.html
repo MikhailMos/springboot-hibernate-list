@@ -1,8 +1,20 @@
-<header th:fragment="header">
-  <nav class="w3-dark-gray">
-    <div class="w3-bar">
-      <a class="w3-bar-item w3-button w3-blue" th:href="@{/logout}">Выйти</a>
-      <a class="w3-bar-item w3-button" th:href="@{/add}">Добавить задачу</a>
-    </div>
-  </nav>
-</header>
+<!DOCTYPE html>
+<html lang="ru" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+  <meta charset="UTF-8">
+  <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+  <title>Список задач</title>
+</head>
+<body class="w3-light-grey">
+  <header th:fragment="header">
+    <nav class="w3-dark-gray">
+      <div class="w3-bar">
+        <a sec:authorize="isAuthenticated()" class="w3-bar-item w3-button w3-blue" th:href="@{/login?logout}">Выйти</a>
+<!--        <a class="w3-bar-item w3-button w3-blue" th:href="@{/login}">Логин</a>-->
+        <a class="w3-bar-item w3-button" th:href="@{/add}" th:classappend="@{/index}? '' : 'w3-hide'">Добавить задачу</a>
+      </div>
+    </nav>
+  </header>
+</body>
+</html>

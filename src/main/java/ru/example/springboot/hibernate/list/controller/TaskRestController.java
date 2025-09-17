@@ -1,20 +1,29 @@
 package ru.example.springboot.hibernate.list.controller;
 
 import com.github.fge.jsonpatch.JsonPatch;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
+import ru.example.springboot.hibernate.list.mapper.TaskMapper;
 import ru.example.springboot.hibernate.list.model.Task;
+import ru.example.springboot.hibernate.list.model.TaskDto;
 import ru.example.springboot.hibernate.list.service.TaskService;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * REST контроллер для управления задачами.
  * Обрабатывает HTTP-запросы, связанные с созданием, чтением, обновлением и удалением задач.
  */
 @RestController
-@RequestMapping("/${root-mapping.path}")
-public class TaskController {
+@RequestMapping("/${root-api-mapping.path}")
+@RequiredArgsConstructor
+public class TaskRestController {
+
+    /**
+     * Интерфейс содержащий логику конвертации задач
+     */
+    private final TaskMapper taskMapper;
 
     /**
      * Экземпляр класса содержащий логику обработки данных
@@ -24,25 +33,17 @@ public class TaskController {
     private final TaskService taskService;
 
     /**
-     * Создает экземпляр TaskController с внедрением сервиса задач.
-     *
-     * @param taskService сервис для выполнения бизнес-логики по задачам
-     */
-    @Autowired
-    public TaskController(TaskService taskService) {
-        this.taskService = taskService;
-    }
-
-    /**
      * Возвращает список всех задач.
      *
      * @return список объектов Task
      */
     @GetMapping("/tasks")
-    public List<Task> getAllTasks() {
+    public List<TaskDto> getAllTasks() {
 
-        return taskService.findAll();
-
+        return taskService.findAll()
+                .stream()
+                .map(task -> new TaskDto(task.getId(), task.getDescription(), task.getStatus(), task.getUser().getUsername()))
+                .collect(Collectors.toList());
     }
 
     /**
@@ -52,9 +53,9 @@ public class TaskController {
      * @return      созданная задача
      */
     @PostMapping("/tasks")
-    public Task createTask(@RequestBody Task task) {
+    public TaskDto createTask(@RequestBody Task task) {
 
-        return taskService.save(task);
+        return taskMapper.map(taskService.save(task));
 
     }
 
@@ -65,9 +66,9 @@ public class TaskController {
      * @return      найденная задача
      */
     @GetMapping("/tasks/{id}")
-    public Task getTask(@PathVariable("id") Long id) {
+    public TaskDto getTask(@PathVariable("id") Long id) {
 
-        return taskService.findById(id);
+        return taskMapper.map(taskService.findById(id));
 
     }
 
@@ -79,9 +80,9 @@ public class TaskController {
      * @return              обновленная задача
      */
     @PutMapping("/tasks/{id}")
-    public Task updateTask(@PathVariable("id") Long id, @RequestBody Task changedTask) {
+    public TaskDto updateTask(@PathVariable("id") Long id, @RequestBody Task changedTask) {
 
-        return taskService.update(id, changedTask);
+        return taskMapper.map(taskService.update(id, changedTask));
 
     }
 
@@ -93,9 +94,9 @@ public class TaskController {
      * @return              задача после обновления статуса
      */
     @PutMapping("/tasks/{id}/status")
-    public Task updateStatus(@PathVariable("id") Long id, @RequestBody Task changedTask) {
+    public TaskDto updateStatus(@PathVariable("id") Long id, @RequestBody Task changedTask) {
 
-        return taskService.update(id, changedTask.getStatus());
+        return taskMapper.map(taskService.update(id, changedTask.getStatus()));
 
     }
 
@@ -107,9 +108,9 @@ public class TaskController {
      * @return      задача после применения патча
      */
     @PatchMapping(path = "/tasks/{id}/status", consumes = "application/json-patch+json")
-    public Task updateStatus(@PathVariable("id") Long id, @RequestBody JsonPatch patch) {
+    public TaskDto updateStatus(@PathVariable("id") Long id, @RequestBody JsonPatch patch) {
 
-        return taskService.update(id, patch);
+        return taskMapper.map(taskService.update(id, patch));
 
     }
 

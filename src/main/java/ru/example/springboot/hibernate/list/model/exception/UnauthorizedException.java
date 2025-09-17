@@ -1,32 +1,28 @@
 package ru.example.springboot.hibernate.list.model.exception;
 
 /**
- * Исключение возникающее, когда неверный пароль или учетная запись отключена.
- * Это исключение среды выполнения, которое можно использовать для обозначения
- *  состояния, аналогично ошибке 401, на уровне сервиса или контроллера.
+ * Исключение возникающее, когда учетная запись пользователя отключена,
+ * либо когда недостаточно прав, аналогично ошибке 403.
  */
-public class UnauthorizedException extends RuntimeException {
-
-    /** Имя поля. */
-    private String fieldName;
+public class UnauthorizedException extends ApiException {
 
     /**
-     * Создает новое исключение UnauthorizedException с указанным подробным сообщением.
+     * Создаёт новое исключение ResourceForbiddenException с указанным подробным сообщением
+     * и кодом RESOURCE_FORBIDDEN.
      *
-     * @param message подробное сообщение, описывающее возникновение исключения
-     * @param fieldName имя поля, если поле не известно передавай пустую строку
+     * @param message подробное сообщение, описывающее почему ресурс запрещен
      */
-    public UnauthorizedException(String message, String fieldName) {
-        super(message);
-        this.fieldName = fieldName;
+    public UnauthorizedException(String message) {
+        super(message, "RESOURCE_FORBIDDEN");
     }
 
     /**
-     * Возвращает имя поля
+     * Создаёт новое исключение ResourceForbiddenException с указанным подробным сообщением.
      *
-     * @return имя поля
+     * @param message   подробное сообщение, описывающее почему ресурс запрещен
+     * @param errorCode код ошибки
      */
-    public String getFieldName() {
-        return fieldName;
+    public UnauthorizedException(String message, String errorCode) {
+        super(message, errorCode);
     }
 }

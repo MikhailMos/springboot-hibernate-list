@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+</head>
+<body>
+  <div th:fragment="message" th:if="${message}" id="message" class="w3-panel w3-display-container w3-red">
+          <span onclick="this.parentElement.style.display='none'"
+                class="w3-button w3-large w3-display-topright">&times;</span>
+    <h3 th:text="${messageHeader}"></h3>
+    <p th:text="${message}"></p>
+  </div>
+</body>
+</html>

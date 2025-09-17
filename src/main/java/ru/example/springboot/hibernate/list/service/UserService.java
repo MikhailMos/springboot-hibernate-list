@@ -1,45 +1,37 @@
 package ru.example.springboot.hibernate.list.service;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.web.embedded.undertow.UndertowServletWebServerFactory;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.*;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
 import org.springframework.transaction.annotation.Transactional;
 import ru.example.springboot.hibernate.list.model.TokenDetails;
 import ru.example.springboot.hibernate.list.model.UserEntity;
 import ru.example.springboot.hibernate.list.model.UserRole;
 import ru.example.springboot.hibernate.list.model.exception.UnauthorizedException;
 import ru.example.springboot.hibernate.list.repository.UserRepository;
-import ru.example.springboot.hibernate.list.util.BCryptEncoder;
 import ru.example.springboot.hibernate.list.util.JwtUtil;
 
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 /**
  * Сервис пользователей. Обеспечивает операции по получению и регистрации пользователей,
  * а также аутентификацию и формирование токена.
  */
 @Service
-public class UserService {
+@RequiredArgsConstructor
+public class UserService implements UserDetailsService {
 
     /** Репозиторий */
     private final UserRepository userRepository;
-    /** Содержит методы работы с JWT */
+    /** Текущий энкриптер */
+    private final PasswordEncoder passwordEncoder;
+    /** Содержит методы работы с JSON Web Token (jwt) */
     private final JwtUtil jwtUtil;
-    /** Содержит методы работы с  */
-    private final BCryptEncoder bCryptEncoder;
-
-    /** Конструктор с обязательными аргументами */
-    public UserService(@Autowired UserRepository userRepository,
-                       @Autowired JwtUtil jwtUtil,
-                       @Autowired BCryptEncoder bCryptEncoder)
-    {
-        this.userRepository = userRepository;
-        this.jwtUtil = jwtUtil;
-        this.bCryptEncoder = bCryptEncoder;
-    }
 
     /**
      * Возвращает пользователя по имени пользователя.
@@ -48,32 +40,44 @@ public class UserService {
      * @return объект UserEntity, соответствующий указанному имени пользователя
      * @throws UsernameNotFoundException если пользователь не найден
      */
-    public UserEntity getUserByUsername(String username)  throws UsernameNotFoundException {
-        Optional<UserEntity> userEntityOptional = userRepository.findByUsername(username);
+    public Optional<UserEntity> getUserByUsername(String username) {
 
-        if (userEntityOptional.isEmpty()) {
-            throw new UsernameNotFoundException("User not found");
-        }
-
-        return userEntityOptional.get();
+        return userRepository.findByUsername(username);
     }
 
-    /**
-     * Возвращает пользователя по идентификатору.
-     *
-     * @param userId идентификатор пользователя
-     * @return объект UserEntity, соответствующий указанному идентификатору
-     * @throws UsernameNotFoundException если пользователь не найден
-     */
-    public UserEntity getUserById(Long userId) throws UsernameNotFoundException {
-        Optional<UserEntity> userEntityOptional = userRepository.findById(userId);
-
-        if (userEntityOptional.isEmpty()) {
-            throw new UsernameNotFoundException("User not found");
-        }
-
-        return userEntityOptional.get();
+    @Override
+    @Transactional
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        return getUserByUsername(username)
+                .map(user -> new User(
+                        user.getUsername(),
+                        user.getPassword(),
+                        mapRoleToAuthority(user.getRole())
+                ))
+                .orElseThrow(() -> new UsernameNotFoundException(String.format("Пользователь '%s' не найден", username)));
     }
+
+    private Collection<? extends GrantedAuthority> mapRoleToAuthority(UserRole role) {
+        return Collections.singletonList(new SimpleGrantedAuthority(role.toString()));
+    }
+
+
+//    /**
+//     * Возвращает пользователя по идентификатору.
+//     *
+//     * @param userId идентификатор пользователя
+//     * @return объект UserEntity, соответствующий указанному идентификатору
+//     * @throws UsernameNotFoundException если пользователь не найден
+//     */
+//    public UserEntity getUserById(Long userId) throws UsernameNotFoundException {
+//        Optional<UserEntity> userEntityOptional = userRepository.findById(userId);
+//
+//        if (userEntityOptional.isEmpty()) {
+//            throw new UsernameNotFoundException(String.format("Пользователь  c '%d' не найден", userId));
+//        }
+//
+//        return userEntityOptional.get();
+//    }
 
     /**
      * Регистрирует нового пользователя.
@@ -84,7 +88,7 @@ public class UserService {
     @Transactional
     public UserEntity registerUser(UserEntity userEntity) {
 
-        userEntity.setPassword(bCryptEncoder.encode(userEntity.getPassword()));
+        userEntity.setPassword(passwordEncoder.encode(userEntity.getPassword()));
         userEntity.setCreatedAt(LocalDateTime.now());
         userEntity.setUpdatedAt(userEntity.getCreatedAt());
         userEntity.setEnabled(true);
@@ -108,14 +112,16 @@ public class UserService {
     /**
      * Удаляет пользователя из базы по идентификатору.
      *
-     * @param id    идентификатор пользователя
+     * @param username идентификатор пользователя
+     * @throws IllegalFormatException если пользователь не нашелся по имени
      */
     @Transactional
-    public void deleteUser(Long id) {
-        if (!userRepository.existsById(id)) {
+    public void deleteUser(Long id) throws IllegalArgumentException {
+        Optional<UserEntity> optionalUser = userRepository.findById(id);
+        if (optionalUser.isEmpty()) {
             throw new IllegalArgumentException("User not found with id: " + id);
         }
-        userRepository.deleteById(id);
+        userRepository.delete(optionalUser.get());
     }
 
     /**
@@ -127,24 +133,29 @@ public class UserService {
      */
     public TokenDetails authenticate(String username, String password) {
 
-        UserEntity userEntity = getUserByUsername(username);
-
-        if (!userEntity.isEnabled()) {
-            throw new UnauthorizedException("Account disabled", "username");
+        Optional<UserEntity> optionalUser = getUserByUsername(username);
+        if (optionalUser.isEmpty()) {
+            throw new UsernameNotFoundException(String.format("Пользователь '%s' не найден", username));
         }
 
-        if (!bCryptEncoder.matches(password, userEntity.getPassword())) {
-            throw new UnauthorizedException("Invalid password", "password");
+        UserEntity user = optionalUser.get();
+
+        if (!user.isEnabled()) {
+            throw new UnauthorizedException(String.format("Пользователь '%s' заблокирован, обратитесь к администратору.", username));
         }
 
-        String token = jwtUtil.generateToken(userEntity);
+        if (!passwordEncoder.matches(password, user.getPassword())) {
+            throw new UnauthorizedException(String.format("Неверный пароль у пользователя '%s'"), username);
+        }
+
+        String jwtoken = jwtUtil.generateToken(user);
 
         return new TokenDetails(
-                userEntity.getId(),
-                token,
-                jwtUtil.extractIssued(token),
-                jwtUtil.extractExpiration(token));
-    }
+                user.getId(),
+                jwtoken,
+                jwtUtil.extractIssued(jwtoken),
+                jwtUtil.extractExpiration(jwtoken));
 
+    }
 
 }

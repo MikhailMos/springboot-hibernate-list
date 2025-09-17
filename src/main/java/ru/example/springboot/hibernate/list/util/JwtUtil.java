@@ -4,6 +4,7 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import ru.example.springboot.hibernate.list.model.UserEntity;
 
@@ -18,7 +19,7 @@ import java.util.function.Function;
  * Утилита для работы с JWT-токенами. Отвечает за генерацию и валидацию JST
  * Предоставляет методы по извлечению информации из токена, генерации и валидации токенов.
  */
-@Service
+@Component
 public class JwtUtil {
 
     @Value("${jwt.expiration}")
@@ -30,13 +31,13 @@ public class JwtUtil {
 
 
     /**
-     * Извлекает идентификатор пользователя из токена.
+     * Извлекает имя пользователя из токена.
      *
      * @param token JWT-токен
-     * @return идентификатор пользователя
+     * @return имя пользователя
      */
-    public Long extractUserId(String token) {
-        return Long.parseLong(extractClaim(token, Claims::getSubject));
+    public String extractUsername(String token) {
+        return extractClaim(token, Claims::getSubject);
     }
 
     /**
@@ -104,17 +105,17 @@ public class JwtUtil {
     public String generateToken(UserEntity user) {
         Map<String, Object> claims = new HashMap<>() {{
             put("role", user.getRole());
-            put("username", user.getUsername());
+            put("userId", user.getId());
         }};
 
-        return createToken(claims, user.getId().toString());
+        return createToken(claims, user.getUsername());
     }
 
     /**
      * Создает токен с указанными утверждениями и subject (идентификатором пользователя).
      *
      * @param claims список утверждений (claims)
-     * @param subject субъект токена (строковое представление идентификатора пользователя)
+     * @param subject субъект токена (имя пользователя)
      * @return созданный токен в виде строки
      */
     private String createToken(Map<String, Object> claims, String subject) {
@@ -134,6 +135,16 @@ public class JwtUtil {
     }
 
     /**
+     * Проверяет токен
+     *
+     * @param token Jwt-токен
+     * @return true, если токен валиден, иначе false
+     */
+    public Boolean validateToken(String token) {
+        return !isTokenExpired(token);
+    }
+
+    /**
      * Проверяет токен по указанному пользователю.
      *
      * @param token JWT-токен
@@ -141,7 +152,7 @@ public class JwtUtil {
      * @return true, если токен валиден для данного пользователя, иначе false
      */
     public Boolean validateToken(String token, UserEntity userEntity) {
-        final Long userId = extractUserId(token);
-        return (userId.equals(userEntity.getId()) && !isTokenExpired(token));
+        final String username = extractUsername(token);
+        return (username.equals(userEntity.getUsername()) && !isTokenExpired(token));
     }
 }

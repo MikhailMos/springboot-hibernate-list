@@ -1,14 +1,15 @@
-package ru.example.springboot.hibernate.list.config;
+package ru.example.springboot.hibernate.list.security;
 
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -18,6 +19,7 @@ import ru.example.springboot.hibernate.list.util.JwtUtil;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Фильтр, отвечающий за проверку JWT во входящих HTTP-запросах.
@@ -25,26 +27,13 @@ import java.util.List;
  * устанавливается в SecurityContext.
  */
 @Component
+@AllArgsConstructor
 public class JwtRequestFilter extends OncePerRequestFilter {
 
     private static final String BEARER_PREFIX = "Bearer ";
 
-    @Autowired
     private JwtUtil jwtUtil;
-
-    @Autowired
     private UserService userService;
-
-    /**
-     * Создает JwtRequestFilter с необходимыми зависимостями.
-     *
-     * @param jwtUtil утилита для работы с токенами JWT
-     * @param userService сервис для загрузки данных пользователя
-     */
-    public JwtRequestFilter(JwtUtil jwtUtil, UserService userService) {
-        this.jwtUtil = jwtUtil;
-        this.userService = userService;
-    }
 
     /**
      * Обрабатывает запрос до того, как он достигнет цепочки отправки.
@@ -62,16 +51,21 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 
         final String authorizationHeader = request.getHeader("Authorization");
 
-        Long userId = null;
+        String username = null;
         String token = null;
 
         if (authorizationHeader != null && authorizationHeader.startsWith(BEARER_PREFIX)) {
             token = authorizationHeader.substring(BEARER_PREFIX.length());
-            userId = jwtUtil.extractUserId(token);
+            username = jwtUtil.extractUsername(token);
         }
 
-        if (userId != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            UserEntity userEntity = this.userService.getUserById(userId);
+        if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+            Optional<UserEntity> optionalUser = this.userService.getUserByUsername(username);
+            if (optionalUser.isEmpty()) {
+                throw new UsernameNotFoundException(String.format("Пользователь '%s' не найден", username));
+            }
+
+            UserEntity userEntity = optionalUser.get();
 
             if (jwtUtil.validateToken(token, userEntity)) {
                 Claims claims = jwtUtil.extractAllClaims(token);

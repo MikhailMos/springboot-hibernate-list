@@ -3,12 +3,20 @@ package ru.example.springboot.hibernate.list.model;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.Objects;
 
 /**
  *  Сущность задачи. Представляет запись в таблице "tasks".
  */
+@Data
+@Builder(toBuilder = true)
+@AllArgsConstructor
+@NoArgsConstructor
 @Entity
 @Table(name = "tasks")
 public class Task {
@@ -30,83 +38,9 @@ public class Task {
     @Enumerated(EnumType.STRING)
     private TaskStatus status = TaskStatus.TODO;
 
-    /** Конструктор по умолчанию, обязательный для JPA. */
-    public Task() {
-    }
-
-    /**
-     * Создает задачу с описанием. Статус устанавливается по умолчанию.
-     *
-     * @param description описание задачи
-     */
-    public Task(String description) {
-        this.description = description;
-    }
-
-    /**
-     * Создает задачу с описанием и статусом.
-     *
-     * @param description описание задачи
-     * @param status      статус задачи
-     */
-    public Task(String description, TaskStatus status) {
-        this.description = description;
-        this.status = status == null ? TaskStatus.TODO : status;
-    }
-
-    /**
-     * Возвращает идентификатор задачи.
-     *
-     * @return идентификатор задачи
-     */
-    public long getId() {
-        return id;
-    }
-
-    /**
-     * Возвращает описание задачи.
-     *
-     * @return описание задачи
-     */
-    public String getDescription() {
-        return description;
-    }
-
-    /**
-     * Возвращает статус задачи.
-     *
-     * @return статус задачи
-     */
-    public TaskStatus getStatus() {
-        return status;
-    }
-
-    /**
-     * Устанавливает идентификатор задачи.
-     *
-     * @param id идентификатор задачи
-     */
-    public void setId(long id) {
-        this.id = id;
-    }
-
-    /**
-     * Устанавливает описание задачи.
-     *
-     * @param description описание задачи
-     */
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    /**
-     * Устанавливает статус задачи.
-     *
-     * @param status новый статус задачи
-     */
-    public void setStatus(TaskStatus status) {
-        this.status = status;
-    }
+    @ManyToOne
+    @JoinColumn(name = "username")
+    private UserEntity user;
 
     /**
      * Возвращает строковое представление объекта задачи.

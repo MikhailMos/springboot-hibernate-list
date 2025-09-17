@@ -105,6 +105,10 @@ public class Task {
             this.status = TaskStatus.TODO;
         }
 
+        if (this.user == null) {
+            this.user = t.getUser();
+        }
+
         return this;
     }
 

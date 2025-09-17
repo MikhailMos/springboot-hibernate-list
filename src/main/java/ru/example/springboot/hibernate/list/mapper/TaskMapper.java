@@ -2,6 +2,7 @@ package ru.example.springboot.hibernate.list.mapper;
 
 import org.mapstruct.InheritInverseConfiguration;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 import ru.example.springboot.hibernate.list.model.Task;
 import ru.example.springboot.hibernate.list.model.TaskDto;
 
@@ -12,6 +13,7 @@ import ru.example.springboot.hibernate.list.model.TaskDto;
 @Mapper(componentModel = "spring")
 public interface TaskMapper {
 
+    @Mapping(target = "owner", expression = "java(task.getUser().getUsername())")
     TaskDto map(Task task);
 
     @InheritInverseConfiguration

@@ -95,7 +95,7 @@ public class AuthRestController {
         userService.deleteUser(id);
 
         Map<String, String> results = new HashMap<>(2);
-        results.put("userid", id.toString());
+        results.put("userId", id.toString());
         results.put("message", "Пользователь удален");
 
         return results;

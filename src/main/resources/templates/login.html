@@ -21,8 +21,10 @@
                     <label for="password">Пароль</label>
                     <input type="password" id="password" name="password" class="w3-input w3-animate-input w3-border w3-round-large" style="width: 30%" placeholder="Пароль" required>
                 </p>
-                <button type="submit" class="w3-btn w3-green w3-round-large w3-margin-bottom">Войти</button>
-                <a class="w3-text-green w3-margin-left w3-hover-opacity" style="text-decoration: none" th:href="@{/register}">Зарегистрироваться</a>
+                <div class="w3-panel">
+                    <button type="submit" class="w3-btn w3-green w3-round-large">Войти</button>
+                    <a class="w3-text-green w3-margin-left w3-hover-opacity" style="text-decoration: none" th:href="@{/register}">Зарегистрироваться</a>
+                </div>
             </form>
         </div>
     </div>

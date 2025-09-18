@@ -11,8 +11,8 @@ spring:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
-  hibernate:
-    ddl-auto: update
+    hibernate:
+      ddl-auto: update
 
 #jwt
 jwt:
@@ -23,3 +23,7 @@ jwt:
 #root path
 root-api-mapping:
   path: api/v1
+
+logging:
+  level:
+    root: DEBUG

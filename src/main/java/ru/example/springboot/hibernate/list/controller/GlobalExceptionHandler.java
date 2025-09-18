@@ -98,7 +98,7 @@ public class GlobalExceptionHandler {
         mav.addObject("message", message);
         mav.addObject("statuses", TaskStatus.values());
         if (!list.isEmpty()) {
-            mav.addObject("task", list.get(0));
+            mav.addObject("task", list.getFirst());
         }
 
         return mav;

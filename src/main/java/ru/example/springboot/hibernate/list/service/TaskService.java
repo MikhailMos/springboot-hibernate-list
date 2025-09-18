@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.fge.jsonpatch.JsonPatch;
 import com.github.fge.jsonpatch.JsonPatchException;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -58,7 +59,7 @@ public class TaskService {
      * @return сохраненная задача
      */
     @Transactional(readOnly = false)
-    public Task save(Task task) {
+    public Task save(@Valid Task task) {
         return taskRepository.save(task);
     }
 
@@ -83,7 +84,7 @@ public class TaskService {
      * @throws ResourceNotFoundException если задача не была найдена по идентификатору
      */
     @Transactional
-    public Task update(Long id, Task changedTask) throws ResourceNotFoundException {
+    public Task update(Long id, @Valid Task changedTask) throws ResourceNotFoundException {
 
         Task foundTask = findById(id).copyWithoutId(changedTask);
 

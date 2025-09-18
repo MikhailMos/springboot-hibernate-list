@@ -73,14 +73,11 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(ConstraintViolationException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public Object handleConstraintViolationException(ConstraintViolationException ex, HttpServletRequest request) {
-        final List<String> violations = ex
+        final String message = ex
                 .getConstraintViolations()
                 .stream()
-                .map(violation ->
-                        violation.getPropertyPath().toString() + ": " + violation.getMessage()
-                )
-                .collect(Collectors.toList());
-        final String message = String.join("\n", violations);
+                .map(error ->  error.getPropertyPath() + ": " + error.getMessage())
+                .collect(Collectors.joining("\n"));
 
         // вернуть JSON
         if (isApiRequest(request)) {
@@ -116,12 +113,11 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public Object handleMethodArgumentNotValidException(MethodArgumentNotValidException ex, HttpServletRequest request) {
-        final List<String> violations = ex
+        final String message = ex
                 .getFieldErrors()
                 .stream()
                 .map(error ->  error.getField() + ": " + error.getDefaultMessage())
-                .collect(Collectors.toList());
-        final String message = String.join("\n", violations);
+                .collect(Collectors.joining("\n"));
 
         // вернуть JSON
         if (isApiRequest(request)) {
@@ -132,7 +128,7 @@ public class GlobalExceptionHandler {
         String viewName = getViewName(request.getRequestURI());
         ModelAndView mav = new ModelAndView(viewName);
         mav.addObject("messageHeader", "Ошибка!");
-        mav.addObject("message", String.join("\n", violations));
+        mav.addObject("message", message);
         mav.addObject("statuses", TaskStatus.values());
 
         return mav;
@@ -253,31 +249,6 @@ public class GlobalExceptionHandler {
         // вернуть JSON
         if (isApiRequest(request)) {
             return getResponseEntityForJson(HttpStatus.BAD_REQUEST, ex.getErrorCode(), ex.getMessage());
-        }
-
-        // вернуть http
-        ModelAndView mav = new ModelAndView("error");
-        mav.addObject("errorMessage", ex.getMessage());
-
-        return mav;
-    }
-
-    /**
-     * Обработчик всех остальных исключений.
-     * Нужен для того, чтоб непонятные ошибки показывались в форме "error".
-     * Возвращает код состояния 500 (Internal server error) и тело ошибки.
-     *
-     * @param ex        исключение, возникающее в базе данных
-     * @param request   запрос
-     * @return          объект Object с деталями проблемы
-     */
-    @ExceptionHandler(Exception.class)
-    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public Object handleOtherException(Exception ex, HttpServletRequest request) {
-
-        // вернуть JSON
-        if (isApiRequest(request)) {
-            return getResponseEntityForJson(HttpStatus.INTERNAL_SERVER_ERROR, "INTERNAL_SERVER_ERROR", ex.getMessage());
         }
 
         // вернуть http

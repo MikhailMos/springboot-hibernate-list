@@ -131,6 +131,7 @@ public class UserService implements UserDetailsService {
      * @param password Пароль пользователя
      * @return объект TokenDetails, содержащий детали аутентификации и токен
      */
+    @Transactional
     public TokenDetails authenticate(String username, String password) {
 
         Optional<UserEntity> optionalUser = getUserByUsername(username);

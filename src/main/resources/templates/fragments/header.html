@@ -13,6 +13,7 @@
         <a sec:authorize="isAuthenticated()" class="w3-bar-item w3-button w3-blue" th:href="@{/login?logout}">Выйти</a>
 <!--        <a class="w3-bar-item w3-button w3-blue" th:href="@{/login}">Логин</a>-->
         <a class="w3-bar-item w3-button" th:href="@{/add}" th:classappend="@{/index}? '' : 'w3-hide'">Добавить задачу</a>
+        <span class="w3-bar-item w3-right" sec:authorize="isAuthenticated()" sec:authentication="name"></span>
       </div>
     </nav>
   </header>

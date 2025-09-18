@@ -50,18 +50,11 @@ public class GlobalExceptionHandler {
 
         // вернуть JSON
         if (isApiRequest(request)) {
-            Map<String, String> body = new HashMap<>();
-            body.put("errorCode", ex.getErrorCode());
-            body.put("message", ex.getMessage());
-
-            return ResponseEntity
-                    .status(HttpStatus.NOT_FOUND)
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .body(body);
+            return getResponseEntityForJson(HttpStatus.NOT_FOUND, ex.getErrorCode(), ex.getMessage());
         }
 
         // вернуть http
-        String viewName = getViewName(request.getRequestURI());
+        String viewName = getViewName(request.getRequestURI()); // RequestPath previousRequestPath = (RequestPath)request.getAttribute(ServletRequestPathUtils.PATH_ATTRIBUTE);
         ModelAndView mav = new ModelAndView(viewName);
         mav.addObject("messageHeader", "Ошибка!");
         mav.addObject("message", ex.getMessage());
@@ -87,14 +80,11 @@ public class GlobalExceptionHandler {
                         violation.getPropertyPath().toString() + ": " + violation.getMessage()
                 )
                 .collect(Collectors.toList());
+        final String message = String.join("\n", violations);
 
         // вернуть JSON
         if (isApiRequest(request)) {
-            Map<String, String> body = new HashMap<>();
-            body.put("errorCode", "BAD_REQUEST");
-            body.put("message", String.join("\n", violations));  //ex.getMessage()
-
-            return ResponseEntity.badRequest().contentType(MediaType.APPLICATION_JSON).body(body);
+            return getResponseEntityForJson(HttpStatus.BAD_REQUEST, "BAD_REQUEST", message);
         }
 
         List<Object> list = ex.getConstraintViolations().stream()
@@ -105,7 +95,7 @@ public class GlobalExceptionHandler {
         String viewName = getViewName(request.getRequestURI());
         ModelAndView mav = new ModelAndView(viewName);
         mav.addObject("messageHeader", "Ошибка!");
-        mav.addObject("message", String.join("\n", violations));
+        mav.addObject("message", message);
         mav.addObject("statuses", TaskStatus.values());
         if (!list.isEmpty()) {
             mav.addObject("task", list.get(0));
@@ -131,14 +121,11 @@ public class GlobalExceptionHandler {
                 .stream()
                 .map(error ->  error.getField() + ": " + error.getDefaultMessage())
                 .collect(Collectors.toList());
+        final String message = String.join("\n", violations);
 
         // вернуть JSON
         if (isApiRequest(request)) {
-            Map<String, String> body = new HashMap<>();
-            body.put("errorCode", "BAD_REQUEST");
-            body.put("message", String.join("\n", violations));
-
-            return ResponseEntity.badRequest().contentType(MediaType.APPLICATION_JSON).body(body);
+            return getResponseEntityForJson(HttpStatus.BAD_REQUEST, "BAD_REQUEST", message);
         }
 
         // вернуть http
@@ -165,11 +152,7 @@ public class GlobalExceptionHandler {
 
         // вернуть JSON
         if (isApiRequest(request)) {
-            Map<String, String> body = new HashMap<>();
-            body.put("errorCode", "BAD_REQUEST");
-            body.put("message", ex.getMessage());
-
-            return ResponseEntity.badRequest().contentType(MediaType.APPLICATION_JSON).body(body);
+            return getResponseEntityForJson(HttpStatus.BAD_REQUEST, "BAD_REQUEST", ex.getMessage());
         }
 
         // вернуть http
@@ -194,11 +177,7 @@ public class GlobalExceptionHandler {
 
         // вернуть JSON
         if (isApiRequest(request)) {
-            Map<String, String> body = new HashMap<>();
-            body.put("errorCode", "BAD_REQUEST");
-            body.put("message", ex.getMessage());
-
-            return ResponseEntity.badRequest().contentType(MediaType.APPLICATION_JSON).body(body);
+            return getResponseEntityForJson(HttpStatus.BAD_REQUEST, "BAD_REQUEST", ex.getMessage());
         }
 
         // вернуть http
@@ -223,11 +202,7 @@ public class GlobalExceptionHandler {
 
         // вернуть JSON
         if (isApiRequest(request)) {
-            Map<String, String> body = new HashMap<>();
-            body.put("errorCode", "BAD_REQUEST");
-            body.put("message", ex.getMessage());
-
-            return ResponseEntity.badRequest().contentType(MediaType.APPLICATION_JSON).body(body);
+            return getResponseEntityForJson(HttpStatus.BAD_REQUEST, "BAD_REQUEST", ex.getMessage());
         }
 
         // вернуть http
@@ -251,14 +226,7 @@ public class GlobalExceptionHandler {
 
         // вернуть JSON
         if (isApiRequest(request)) {
-            Map<String, String> body = new HashMap<>();
-            body.put("errorCode", "INTERNAL_SERVER_ERROR");
-            body.put("message", ex.getMessage());
-
-            return ResponseEntity
-                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .body(body);
+            return getResponseEntityForJson(HttpStatus.INTERNAL_SERVER_ERROR, "INTERNAL_SERVER_ERROR", ex.getMessage());
         }
 
         // вернуть http
@@ -268,17 +236,48 @@ public class GlobalExceptionHandler {
         return mav;
     }
 
+    /**
+     * Обработчик исключения UnauthorizedException.
+     * Выбрасывается если не авторизованный пользователь пытается получить
+     * доступ к защищенному ресурсу.
+     * Возвращает код состояния 403 (Forbidden) и тело ошибки.
+     *
+     * @param ex        исключение, возникающее в базе данных
+     * @param request   запрос
+     * @return          объект Object с деталями проблемы
+     */
     @ExceptionHandler(UnauthorizedException.class)
     @ResponseStatus(HttpStatus.FORBIDDEN)
     public Object handleUnauthorizedException(UnauthorizedException ex, HttpServletRequest request) {
 
         // вернуть JSON
         if (isApiRequest(request)) {
-            Map<String, String> body = new HashMap<>();
-            body.put("errorCode", ex.getErrorCode());
-            body.put("message", ex.getMessage());
+            return getResponseEntityForJson(HttpStatus.BAD_REQUEST, ex.getErrorCode(), ex.getMessage());
+        }
 
-            return ResponseEntity.badRequest().contentType(MediaType.APPLICATION_JSON).body(body);
+        // вернуть http
+        ModelAndView mav = new ModelAndView("error");
+        mav.addObject("errorMessage", ex.getMessage());
+
+        return mav;
+    }
+
+    /**
+     * Обработчик всех остальных исключений.
+     * Нужен для того, чтоб непонятные ошибки показывались в форме "error".
+     * Возвращает код состояния 500 (Internal server error) и тело ошибки.
+     *
+     * @param ex        исключение, возникающее в базе данных
+     * @param request   запрос
+     * @return          объект Object с деталями проблемы
+     */
+    @ExceptionHandler(Exception.class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public Object handleOtherException(Exception ex, HttpServletRequest request) {
+
+        // вернуть JSON
+        if (isApiRequest(request)) {
+            return getResponseEntityForJson(HttpStatus.INTERNAL_SERVER_ERROR, "INTERNAL_SERVER_ERROR", ex.getMessage());
         }
 
         // вернуть http
@@ -323,6 +322,26 @@ public class GlobalExceptionHandler {
         }
 
         return result;
+    }
+
+    /**
+     * Подготавливает ResponseEntity и возвращает его.
+     *
+     * @param httpStatus    перечисление, статус
+     * @param errorCode     строковое описание кода
+     * @param message       описание ошибки
+     * @return              заполненная сущность ответа
+     */
+    private ResponseEntity<Map<String, String>> getResponseEntityForJson(HttpStatus httpStatus, String errorCode, String message) {
+
+        Map<String, String> body = new HashMap<>();
+        body.put("errorCode", errorCode);
+        body.put("message", message);
+
+        return ResponseEntity
+                .status(httpStatus)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(body);
     }
 
 }

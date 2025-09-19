@@ -5,7 +5,6 @@ import com.github.fge.jsonpatch.JsonPatchException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -14,6 +13,7 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.servlet.ModelAndView;
+import ru.example.springboot.hibernate.list.model.Task;
 import ru.example.springboot.hibernate.list.model.TaskStatus;
 import ru.example.springboot.hibernate.list.model.exception.ResourceNotFoundException;
 import ru.example.springboot.hibernate.list.model.exception.UnauthorizedException;
@@ -84,8 +84,8 @@ public class GlobalExceptionHandler {
             return getResponseEntityForJson(HttpStatus.BAD_REQUEST, "BAD_REQUEST", message);
         }
 
-        List<Object> list = ex.getConstraintViolations().stream()
-                .map(violation -> violation.getLeafBean())
+        List<Task> list = ex.getConstraintViolations().stream()
+                .map(violation -> (Task) violation.getLeafBean())
                 .collect(Collectors.toList());
 
         // вернуть http
@@ -95,7 +95,9 @@ public class GlobalExceptionHandler {
         mav.addObject("message", message);
         mav.addObject("statuses", TaskStatus.values());
         if (!list.isEmpty()) {
-            mav.addObject("task", list.getFirst());
+            Task task = list.getFirst();
+            task.setUser(null); // иначе вылетает ошибка преобразования String to Long
+            mav.addObject("task", task);
         }
 
         return mav;

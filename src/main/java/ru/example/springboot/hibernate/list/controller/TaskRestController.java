@@ -141,7 +141,7 @@ public class TaskRestController {
 
         Map<String, String> results = new HashMap<>(2);
         results.put("userId", id.toString());
-        results.put("message", "Пользователь удален");
+        results.put("message", "Задача удалена");
 
         return results;
     }

@@ -38,7 +38,7 @@ public class Task {
     @Enumerated(EnumType.STRING)
     private TaskStatus status = TaskStatus.TODO;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "username")
     private UserEntity user;
 

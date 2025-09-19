@@ -56,8 +56,7 @@ public class UserEntity {
     @OneToMany(
             mappedBy = "user",
             cascade = CascadeType.ALL,
-            orphanRemoval = true,
-            fetch = FetchType.EAGER
+            orphanRemoval = true
     )
     private List<Task> tasks;
 

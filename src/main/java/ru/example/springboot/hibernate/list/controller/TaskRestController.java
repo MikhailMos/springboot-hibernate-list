@@ -10,7 +10,6 @@ import ru.example.springboot.hibernate.list.model.TaskDto;
 import ru.example.springboot.hibernate.list.model.UserEntity;
 import ru.example.springboot.hibernate.list.service.TaskService;
 
-import java.security.Principal;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
